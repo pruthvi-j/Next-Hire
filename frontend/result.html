@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assessment Results &amp; Scorecard - NextHire</title>
+  <meta name="description" content="Candidate readiness scorecard, multi-dimensional scoring, and personalized AI evaluation feedback on NextHire.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="dashboard.html" class="brand-logo">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">Scorecard</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="upload.html" class="nav-link">Resume Upload</a></li>
+        <li><a href="interview.html" class="nav-link">Interview Chamber</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="result.html" class="nav-link active">Results</a></li>
+      </ul>
+      <div class="nav-auth-actions">
+        <div class="user-profile-badge">
+          <div class="user-avatar">👤</div>
+          <span class="user-name-display" id="nav-user-name">Candidate</span>
+        </div>
+        <button id="logout-btn" class="btn btn-danger btn-sm">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scorecard Container -->
+  <main class="container">
+    <!-- Page Header -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-success" id="session-code-badge">#NH-2026-001</span>
+          <span class="badge badge-primary" id="evaluated-role-badge">Software Engineer</span>
+          <span class="badge badge-warning" id="evaluated-diff-badge">Medium</span>
+          <span class="badge badge-glass" id="questions-count-badge">5 Questions</span>
+        </div>
+        <h1 class="page-title">Candidate Assessment Scorecard</h1>
+        <p class="page-subtitle">
+          Multi-dimensional technical evaluation, observable confidence indicators, and personalized growth recommendations.
+        </p>
+      </div>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="#" id="download-pdf-btn" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; background: linear-gradient(135deg, #10b981, #059669); border-color: #059669;">
+          <span>📄 Download PDF Report</span>
+        </a>
+        <a href="history.html" class="btn btn-glass btn-sm">Session Archive</a>
+        <a href="interview.html" class="btn btn-glass btn-sm">+ New Interview Round</a>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="result-loading-state" class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem; animation: orbDrift 2s infinite ease-in-out;">⏳</div>
+      <h2>Synthesizing Candidate Evaluation...</h2>
+      <p style="color: var(--text-muted); margin-top: 0.5rem;">
+        Analyzing answer transcripts across technical depth, communication clarity, and response indicators.
+      </p>
+    </div>
+
+    <!-- Error State -->
+    <div id="result-error-state" class="glass-card" style="display: none; text-align: center; padding: 3rem 2rem; max-width: 600px; margin: 2rem auto;">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem; color: #f87171;">⚠️</div>
+      <h2>Evaluation Scorecard Not Found</h2>
+      <p id="error-message-text" style="color: var(--text-secondary); margin: 0.75rem 0 1.75rem;">
+        No completed interview session was found to display.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <a href="interview.html" class="btn btn-primary">Launch Mock Interview &rarr;</a>
+        <a href="dashboard.html" class="btn btn-glass">Return to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Dynamic Content Area -->
+    <div id="result-content-area" style="display: none;">
+      
+      <!-- Top Row: Overall Score & 4 Key Dimension Indicators -->
+      <div class="grid-3" style="gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Overall Score Card (Span 1) -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; padding: 2.25rem 1.5rem; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: -50px; left: -50px; width: 140px; height: 140px; background: rgba(99, 102, 241, 0.2); border-radius: 50%; filter: blur(40px); pointer-events: none;"></div>
+          <span class="stat-label">Overall Readiness Rating</span>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 4rem; font-weight: 800; color: #10b981; line-height: 1; margin: 0.85rem 0;">
+            <span id="overall-score-display">0</span><span style="font-size: 1.6rem; color: var(--text-muted);">%</span>
+          </div>
+          <div style="margin: 0.5rem auto 0.75rem;">
+            <span id="candidate-status-badge" class="badge badge-success">Candidate Status: Evaluating...</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Weighted Academic Hiring Formula &bull; 4 Core Dimensions
+          </p>
+        </div>
+
+        <!-- 4 Core Competency Dimensions Grid (Span 2) -->
+        <div class="glass-card" style="grid-column: span 2; padding: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h3>Evaluated Dimension Metrics</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">
+                Standardized 1–5 scoring scale with normalized percentages
+              </p>
+            </div>
+            <span class="badge badge-glass" id="ai-engine-source-label" style="font-size: 0.75rem;">
+              AI Evaluator Active
+            </span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- Dimension 1: Technical Knowledge (40% Weight) -->
+            <div class="scorecard-metric-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">💻</span>
+                  <strong style="color: #ffffff; font-size: 0.95rem;">Technical Skills &amp; Domain Accuracy</strong>
+                  <span class="badge badge-glass" style="font-size: 0.7rem;">40% Weight</span>
+                </div>
+                <div style="text-align: right;">
+                  <span id="tech-score-raw" style="color: var(--text-muted); font-size: 0.85rem; margin-right: 0.5rem;">4.2 / 5.0</span>
+                  <strong id="tech-score-pct" style="color: #60a5fa; font-size: 1.05rem;">84%</strong>
+                </div>
+              </div>
+              <div style="height: 7px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden;">
+                <div id="tech-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #6366f1, #60a5fa); transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+              </div>
+            </div>
+
+            <!-- Dimension 2: Answer Quality & Completeness (25% Weight) -->
+            <div class="scorecard-metric-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">🎯</span>
+                  <strong style="color: #ffffff; font-size: 0.95rem;">Answer Quality &amp; Completeness</strong>
+                  <span class="badge badge-glass" style="font-size: 0.7rem;">25% Weight</span>
+                </div>
+                <div style="text-align: right;">
+                  <span id="qual-score-raw" style="color: var(--text-muted); font-size: 0.85rem; margin-right: 0.5rem;">4.0 / 5.0</span>
+                  <strong id="qual-score-pct" style="color: #34d399; font-size: 1.05rem;">80%</strong>
+                </div>
+              </div>
+              <div style="height: 7px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden;">
+                <div id="qual-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+              </div>
+            </div>
+
+            <!-- Dimension 3: Communication Clarity (20% Weight) -->
+            <div class="scorecard-metric-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">🗣️</span>
+                  <strong style="color: #ffffff; font-size: 0.95rem;">Communication &amp; Articulation</strong>
+                  <span class="badge badge-glass" style="font-size: 0.7rem;">20% Weight</span>
+                </div>
+                <div style="text-align: right;">
+                  <span id="comm-score-raw" style="color: var(--text-muted); font-size: 0.85rem; margin-right: 0.5rem;">4.1 / 5.0</span>
+                  <strong id="comm-score-pct" style="color: #a78bfa; font-size: 1.05rem;">82%</strong>
+                </div>
+              </div>
+              <div style="height: 7px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden;">
+                <div id="comm-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+              </div>
+            </div>
+
+            <!-- Dimension 4: Confidence Estimate (15% Weight) -->
+            <div class="scorecard-metric-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="font-size: 1.1rem;">⚡</span>
+                  <strong style="color: #ffffff; font-size: 0.95rem;">Confidence Estimate</strong>
+                  <span class="badge badge-glass" style="font-size: 0.7rem;">15% Weight</span>
+                </div>
+                <div style="text-align: right;">
+                  <span id="conf-score-raw" style="color: var(--text-muted); font-size: 0.85rem; margin-right: 0.5rem;">3.8 / 5.0</span>
+                  <strong id="conf-score-pct" style="color: #f59e0b; font-size: 1.05rem;">76%</strong>
+                </div>
+              </div>
+              <div style="height: 7px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden;">
+                <div id="conf-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+              </div>
+              <div style="margin-top: 0.4rem; font-size: 0.75rem; color: var(--text-muted); font-style: italic;">
+                * Notice: Confidence is presented strictly as an estimate based on observable response and speech indicators, not as a psychological diagnosis or guaranteed measurement.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Middle Row: Personalized Feedback 3-Card Grid -->
+      <h2 style="font-size: 1.4rem; margin-bottom: 1.25rem;">Personalized Diagnostic Feedback</h2>
+      <div class="grid-3" style="gap: 1.5rem; margin-bottom: 2.5rem;">
+
+        <!-- STRENGTHS -->
+        <div class="feedback-card" style="border-top: 3px solid #10b981;">
+          <div class="feedback-card-header">
+            <div class="feedback-icon-box" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+              ✓
+            </div>
+            <div>
+              <h3 style="font-size: 1.15rem; color: #a7f3d0;">STRENGTHS</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Validated competencies</span>
+            </div>
+          </div>
+          <ul id="strengths-list-container" style="list-style: none; padding: 0; margin: 0; flex: 1;">
+            <li style="color: var(--text-muted);">Loading strengths...</li>
+          </ul>
+        </div>
+
+        <!-- AREAS TO IMPROVE (WEAKNESSES) -->
+        <div class="feedback-card" style="border-top: 3px solid #f59e0b;">
+          <div class="feedback-card-header">
+            <div class="feedback-icon-box" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+              •
+            </div>
+            <div>
+              <h3 style="font-size: 1.15rem; color: #fde68a;">AREAS TO IMPROVE</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Identified conceptual gaps</span>
+            </div>
+          </div>
+          <ul id="weaknesses-list-container" style="list-style: none; padding: 0; margin: 0; flex: 1;">
+            <li style="color: var(--text-muted);">Loading improvement areas...</li>
+          </ul>
+        </div>
+
+        <!-- RECOMMENDATIONS -->
+        <div class="feedback-card" style="border-top: 3px solid #6366f1;">
+          <div class="feedback-card-header">
+            <div class="feedback-icon-box" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+              →
+            </div>
+            <div>
+              <h3 style="font-size: 1.15rem; color: #c7d2fe;">RECOMMENDATIONS</h3>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Actionable study roadmap</span>
+            </div>
+          </div>
+          <ul id="recommendations-list-container" style="list-style: none; padding: 0; margin: 0; flex: 1;">
+            <li style="color: var(--text-muted);">Loading recommendations...</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons: View Interview Details & Download PDF -->
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+        <button 
+          type="button" 
+          id="toggle-details-btn" 
+          class="btn btn-primary" 
+          style="padding: 0.85rem 2rem; font-size: 1.05rem;"
+          onclick="toggleInterviewDetails()"
+        >
+          ▼ [ View Interview Details ]
+        </button>
+        <a 
+          href="#" 
+          id="download-pdf-btn-bottom" 
+          class="btn btn-glass" 
+          style="padding: 0.85rem 1.75rem; font-size: 1.05rem; display: inline-flex; align-items: center; gap: 0.5rem; color: #a7f3d0; border-color: rgba(16, 185, 129, 0.4);"
+        >
+          <span>📄 Download PDF Report</span>
+        </a>
+      </div>
+
+      <!-- Detailed Question-by-Question Audit Section (Initially Hidden) -->
+      <div id="details-accordion-wrapper" style="display: none; margin-bottom: 3rem;">
+        <div class="page-header" style="margin-bottom: 1.5rem;">
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span class="badge badge-primary">Technical Audit</span>
+            <span class="badge badge-glass">Question-by-Question Breakdown</span>
+          </div>
+          <h2 style="font-size: 1.6rem;">Interview Questions &amp; Transcripts Detail</h2>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Complete verification of technical questions retrieved from MySQL and individual AI answer evaluations.
+          </p>
+        </div>
+
+        <!-- Container populated by js/result.js -->
+        <div id="interview-details-container"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="logo-symbol" style="width: 28px; height: 28px; font-size: 0.85rem;">NH</div>
+        <span style="font-weight: 700; color: #fff;">NEXT HIRE</span>
+      </div>
+      <p class="footer-credit">
+        Master of Computer Applications (MCA) Academic Project &bull; Phases 1 through 8 Implemented
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/result.js"></script>
+</body>
+</html>

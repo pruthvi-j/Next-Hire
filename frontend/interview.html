@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock Technical Interview - NextHire</title>
+  <meta name="description" content="AI Technical Voice Mock Interview Chamber powered by MySQL Question Bank and Web Speech Recognition on NextHire.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Voice Visualizer and Pulse Waves */
+    .audio-visualizer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 44px;
+      margin: 1rem 0;
+    }
+    .wave-bar {
+      width: 5px;
+      background: #818cf8;
+      border-radius: 4px;
+      height: 10px;
+      transition: height 0.15s ease;
+    }
+    .wave-bar.speaking {
+      animation: wavePulse 1s ease-in-out infinite alternate;
+    }
+    .wave-bar.speaking:nth-child(2) { animation-delay: 0.15s; }
+    .wave-bar.speaking:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar.speaking:nth-child(4) { animation-delay: 0.1s; }
+    .wave-bar.speaking:nth-child(5) { animation-delay: 0.25s; }
+
+    .wave-bar.listening {
+      background: #ef4444;
+      animation: wavePulseRed 0.6s ease-in-out infinite alternate;
+    }
+    .wave-bar.listening:nth-child(2) { animation-delay: 0.1s; }
+    .wave-bar.listening:nth-child(3) { animation-delay: 0.2s; }
+    .wave-bar.listening:nth-child(4) { animation-delay: 0.3s; }
+    .wave-bar.listening:nth-child(5) { animation-delay: 0.15s; }
+
+    @keyframes wavePulse {
+      0% { height: 8px; }
+      100% { height: 38px; }
+    }
+    @keyframes wavePulseRed {
+      0% { height: 12px; }
+      100% { height: 42px; }
+    }
+
+    /* Voice Status Indicator Pill */
+    .voice-status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      transition: var(--transition);
+    }
+    .status-ready {
+      background: rgba(148, 163, 184, 0.15);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #cbd5e1;
+    }
+    .status-listening {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+      animation: pulseGlow 1.5s infinite;
+    }
+    .status-processing {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fde68a;
+    }
+    .status-captured {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #a7f3d0;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    .mic-button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #ffffff;
+      font-size: 1.6rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      transition: var(--transition);
+      outline: none;
+    }
+    .mic-button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+    }
+    .mic-button.recording {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+      border-color: #fca5a5;
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.7);
+      animation: pulseGlow 1s infinite;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="dashboard.html" class="brand-logo">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">Voice Mock</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="upload.html" class="nav-link">Resume &amp; Roles</a></li>
+        <li><a href="interview.html" class="nav-link active">Interview Chamber</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="result.html" class="nav-link">Results</a></li>
+      </ul>
+      <div class="nav-auth-actions">
+        <div class="user-profile-badge">
+          <div class="user-avatar">👤</div>
+          <span class="user-name-display" id="nav-user-name">Candidate</span>
+        </div>
+        <button id="logout-btn" class="btn btn-danger btn-sm">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    <!-- Alert Box -->
+    <div id="chamber-alert" class="alert alert-danger" role="alert"></div>
+
+    <!-- =========================================================
+         SECTION A: INTERVIEW SETUP MODAL / SCREEN
+         ========================================================= -->
+    <div id="setup-section" class="glass-card" style="max-width: 780px; margin: 2rem auto; padding: 2.5rem;">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div class="feature-icon-box" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.75rem;">🎙️</div>
+        <h2 style="font-size: 2.2rem;">Configure Mock Interview</h2>
+        <p style="font-size: 0.95rem; margin-top: 0.35rem;">
+          Select your benchmark role, question difficulty, and session length. Questions are retrieved from the verified 75-question MySQL Question Bank.
+        </p>
+      </div>
+
+      <form id="interview-setup-form">
+        <!-- Target Role -->
+        <div class="form-group">
+          <label class="form-label" for="setup-role-select">Target Engineering Role</label>
+          <div class="input-container">
+            <span class="input-icon">💼</span>
+            <select id="setup-role-select" class="form-control" style="background-color: var(--input-bg); color: #ffffff;">
+              <option value="1">Python Developer</option>
+              <option value="2">Data Analyst</option>
+              <option value="3" selected>Full Stack Developer</option>
+              <option value="4">Software Engineer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Difficulty -->
+          <div class="form-group">
+            <label class="form-label" for="setup-difficulty-select">Interview Difficulty</label>
+            <div class="input-container">
+              <span class="input-icon">⚡</span>
+              <select id="setup-difficulty-select" class="form-control" style="background-color: var(--input-bg); color: #ffffff;">
+                <option value="Easy">Easy (Syntax &amp; Fundamentals)</option>
+                <option value="Medium" selected>Medium (Applied Concepts &amp; Logic)</option>
+                <option value="Hard">Hard (Architecture &amp; Edge Cases)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Question Count -->
+          <div class="form-group">
+            <label class="form-label" for="setup-questions-count">Number of Questions</label>
+            <div class="input-container">
+              <span class="input-icon">🔢</span>
+              <select id="setup-questions-count" class="form-control" style="background-color: var(--input-bg); color: #ffffff;">
+                <option value="3">3 Questions (Rapid Assessment)</option>
+                <option value="5" selected>5 Questions (Standard Technical Round)</option>
+                <option value="10">10 Questions (Comprehensive Evaluation)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate Resume Sync Notice -->
+        <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-md); font-size: 0.9rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; color: #c7d2fe; font-weight: 600;">
+            <span>ℹ️</span> Question Engine Intelligence:
+          </div>
+          <p style="margin-top: 0.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+            The Question Engine prioritizes questions relevant to your uploaded resume skills and target role, guaranteeing unique questions without repetition.
+          </p>
+        </div>
+
+        <!-- Launch Button -->
+        <div style="margin-top: 2rem;">
+          <button type="submit" id="start-chamber-btn" class="btn btn-primary btn-block" style="font-size: 1.05rem; padding: 0.85rem;">
+            <span>Start Technical Voice Interview &rarr;</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- =========================================================
+         SECTION B: ACTIVE VOICE INTERVIEW CHAMBER (Phases 5 & 6)
+         ========================================================= -->
+    <div id="chamber-section" style="display: none;">
+      <!-- Chamber Top Meta Bar -->
+      <div class="glass-card" style="padding: 1.25rem 2rem; margin-bottom: 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="logo-symbol" style="width: 38px; height: 38px; font-size: 1.1rem;">NH</div>
+            <div>
+              <h3 style="font-size: 1.25rem;">NextHire Mock Interview</h3>
+              <span id="chamber-role-title" style="font-size: 0.85rem; color: #67e8f9;">Full Stack Developer</span>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span class="badge badge-primary" id="chamber-diff-badge">Medium</span>
+            <div style="text-align: right;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Session Progress</span>
+              <strong id="question-progress-text" style="font-size: 1.1rem; color: #ffffff;">Question 1 / 5</strong>
+            </div>
+            <button type="button" id="exit-interview-btn" class="btn btn-glass btn-sm" style="color: #fca5a5;">
+              Exit Session
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div style="margin-top: 1rem; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;">
+          <div id="session-progress-bar" style="width: 20%; height: 100%; background: linear-gradient(90deg, #6366f1, #06b6d4); transition: width 0.4s ease;"></div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <!-- AI Proctor / Voice Status Column (1 col) -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 2.3rem; margin: 0.5rem auto 1rem; box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);">
+              🤖
+            </div>
+            <h3>NextHire Proctor</h3>
+            <span style="font-size: 0.8rem; color: #34d399;">● AI Voice System Active</span>
+
+            <!-- Audio Waveform Visualizer -->
+            <div class="audio-visualizer" id="audio-visualizer">
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+            </div>
+
+            <!-- Voice Status Badge -->
+            <div style="margin-top: 0.5rem;">
+              <span id="voice-status-pill" class="voice-status-indicator status-ready">
+                <span id="status-dot">⚪</span> <span id="status-label">Ready</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Voice & Text Guide -->
+          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.8rem; text-align: left; color: var(--text-muted);">
+            <div style="margin-bottom: 0.35rem;">🔊 Click <strong>Listen</strong> to hear the question.</div>
+            <div style="margin-bottom: 0.35rem;">🎤 Click <strong>Start Answer</strong> to speak.</div>
+            <div>⌨️ You can also edit/type in the transcript box.</div>
+          </div>
+        </div>
+
+        <!-- Question Prompt & Candidate Response Area (2 cols) -->
+        <div class="glass-card" style="grid-column: span 2; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <!-- Question Metadata Badges -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="badge badge-primary" id="q-lang-badge">Python</span>
+                <span class="badge badge-warning" id="q-topic-badge">Basics</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);" id="q-code-label">ID: PL001</span>
+              </div>
+              
+              <!-- Text-to-Speech Button -->
+              <button type="button" id="speak-question-btn" class="btn btn-glass btn-sm">
+                <span>🔊 Listen Question</span>
+              </button>
+            </div>
+
+            <!-- Question Prompt Heading -->
+            <div style="padding: 1.25rem; background: rgba(255, 255, 255, 0.04); border-left: 4px solid #6366f1; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
+              <h2 id="question-text-display" style="font-size: 1.4rem; font-weight: 600; color: #ffffff; line-height: 1.4;">
+                Loading question from MySQL database...
+              </h2>
+            </div>
+
+            <!-- Microphone Controls & Status Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <button type="button" id="mic-toggle-btn" class="mic-button" title="Click to speak answer">
+                  🎤
+                </button>
+                <div>
+                  <strong style="color: #ffffff; display: block; font-size: 0.95rem;">Voice Response Channel</strong>
+                  <span id="mic-action-hint" style="font-size: 0.85rem; color: var(--text-muted);">Click microphone to begin speaking</span>
+                </div>
+              </div>
+
+              <!-- Permission / Fallback notification -->
+              <div id="mic-permission-notice" style="display: none; font-size: 0.8rem; color: #fca5a5; max-width: 280px;">
+                ⚠️ Microphone access unavailable. Please type your answer directly in the field below.
+              </div>
+            </div>
+
+            <!-- Answer Transcript Field (Speech-to-Text output + editable fallback) -->
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label class="form-label" for="answer-transcript">
+                Candidate Answer Transcript (Speech-to-Text / Typed)
+              </label>
+              <textarea 
+                id="answer-transcript" 
+                class="form-control no-icon" 
+                rows="5" 
+                placeholder="Click the microphone to speak, or type your answer directly here..."
+                style="resize: vertical; font-size: 0.95rem; line-height: 1.6;"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.25rem; margin-top: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <button type="button" id="clear-transcript-btn" class="btn btn-glass btn-sm">
+              Clear Answer
+            </button>
+
+            <div style="display: flex; gap: 0.75rem;">
+              <button type="button" id="submit-answer-btn" class="btn btn-glass">
+                <span>Save Answer</span>
+              </button>
+              <button type="button" id="next-question-btn" class="btn btn-primary">
+                <span>Next Question &rarr;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         SECTION C: INTERVIEW COMPLETED NOTIFICATION
+         ========================================================= -->
+    <div id="completed-section" class="glass-card" style="display: none; max-width: 680px; margin: 3rem auto; text-align: center; padding: 3rem 2rem;">
+      <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);">
+        ✓
+      </div>
+      <h2>Mock Interview Concluded!</h2>
+      <p style="font-size: 1.05rem; color: var(--text-secondary); margin: 0.5rem auto 2rem; max-width: 500px;">
+        All questions have been completed and your voice transcripts have been securely stored in MySQL.
+      </p>
+
+      <div class="grid-3" style="margin-bottom: 2rem;">
+        <div class="entity-box">
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Questions Answered</span>
+          <strong id="completed-total-q" style="font-size: 1.8rem; color: #ffffff;">5 / 5</strong>
+        </div>
+        <div class="entity-box">
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Evaluated Role</span>
+          <strong id="completed-role-name" style="font-size: 1.1rem; color: #67e8f9; line-height: 2;">Full Stack</strong>
+        </div>
+        <div class="entity-box">
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Answers Stored</span>
+          <strong style="font-size: 1.8rem; color: #34d399;">100%</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;">
+        <a href="result.html" id="view-results-link" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+          <span>View Evaluation Scorecard &rarr;</span>
+        </a>
+        <button type="button" id="retake-interview-btn" class="btn btn-glass">
+          Start New Interview
+        </button>
+        <a href="dashboard.html" class="btn btn-glass">
+          Return to Dashboard
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="logo-symbol" style="width: 28px; height: 28px; font-size: 0.85rem;">NH</div>
+        <span style="font-weight: 700; color: #fff;">NEXT HIRE</span>
+      </div>
+      <p class="footer-credit">
+        Master of Computer Applications (MCA) Academic Project &bull; Python Flask &amp; MySQL Full-Stack Architecture
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/interview.js"></script>
+</body>
+</html>

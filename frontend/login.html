@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - NextHire Portal</title>
+  <meta name="description" content="Sign in to your NextHire candidate assessment account.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">Portal</span>
+      </a>
+      <div class="nav-auth-actions">
+        <a href="index.html" class="btn btn-glass btn-sm">Home</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Register</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Main Container -->
+  <main class="container-narrow">
+    <div class="glass-card">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div class="logo-symbol" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.4rem;">NH</div>
+        <h2>Welcome Back</h2>
+        <p style="font-size: 0.95rem; margin-top: 0.35rem;">Enter your credentials to access your candidate portal</p>
+      </div>
+
+      <!-- Alert Notification Area -->
+      <div id="login-alert" class="alert alert-danger" role="alert"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" novalidate>
+        <!-- Email Input -->
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <div class="input-container">
+            <span class="input-icon">✉</span>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-control" 
+              placeholder="candidate@university.edu" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label class="form-label" for="password" style="margin-bottom: 0;">Password</label>
+            <a href="#" onclick="alert('Password reset is scheduled for Phase 3. Please re-register or use your original password.'); return false;" style="font-size: 0.8rem; color: #818cf8;">Forgot password?</a>
+          </div>
+          <div class="input-container">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder="Enter your account password" 
+              required 
+              autocomplete="current-password"
+            >
+            <button type="button" class="password-toggle" data-target="password" title="Show password" aria-label="Toggle password visibility">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 2rem;">
+          <button type="submit" id="login-submit-btn" class="btn btn-primary btn-block">
+            Sign In to Dashboard
+          </button>
+        </div>
+      </form>
+
+      <!-- Registration Footer Link -->
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-muted);">
+        Don't have an account yet? 
+        <a href="register.html" style="font-weight: 600; color: #818cf8;">Create Account</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

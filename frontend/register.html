@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - NextHire Portal</title>
+  <meta name="description" content="Register a new student/candidate account for AI mock interviews on NextHire.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">Register</span>
+      </a>
+      <div class="nav-auth-actions">
+        <a href="index.html" class="btn btn-glass btn-sm">Home</a>
+        <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Register Main Container -->
+  <main class="container-narrow">
+    <div class="glass-card">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div class="logo-symbol" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.4rem;">NH</div>
+        <h2>Candidate Registration</h2>
+        <p style="font-size: 0.95rem; margin-top: 0.35rem;">Join NextHire to unlock AI-assisted mock assessments</p>
+      </div>
+
+      <!-- Alert Notification Area -->
+      <div id="register-alert" class="alert alert-danger" role="alert"></div>
+
+      <!-- Register Form -->
+      <form id="register-form" novalidate>
+        <!-- Name Input -->
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name</label>
+          <div class="input-container">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              class="form-control" 
+              placeholder="e.g. Alex Johnson" 
+              required 
+              autocomplete="name"
+            >
+          </div>
+        </div>
+
+        <!-- Email Input -->
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <div class="input-container">
+            <span class="input-icon">✉</span>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-control" 
+              placeholder="candidate@university.edu" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <label class="form-label" for="password">Password (Minimum 6 characters)</label>
+          <div class="input-container">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-control" 
+              placeholder="Create a strong password" 
+              required 
+              autocomplete="new-password"
+            >
+            <button type="button" class="password-toggle" data-target="password" title="Show password" aria-label="Toggle password visibility">
+              👁️
+            </button>
+          </div>
+          <!-- Strength Indicator -->
+          <div class="password-strength-container">
+            <div id="password-strength" class="password-strength-bar"></div>
+          </div>
+        </div>
+
+        <!-- Confirm Password Input -->
+        <div class="form-group">
+          <label class="form-label" for="confirm-password">Confirm Password</label>
+          <div class="input-container">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="confirm-password" 
+              name="confirm-password" 
+              class="form-control" 
+              placeholder="Re-enter your password" 
+              required 
+              autocomplete="new-password"
+            >
+            <button type="button" class="password-toggle" data-target="confirm-password" title="Show password" aria-label="Toggle password visibility">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 2rem;">
+          <button type="submit" id="register-submit-btn" class="btn btn-primary btn-block">
+            Create Free Account
+          </button>
+        </div>
+      </form>
+
+      <!-- Login Link -->
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-muted);">
+        Already have an account? 
+        <a href="login.html" style="font-weight: 600; color: #818cf8;">Sign In here</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Dashboard - NextHire</title>
+  <meta name="description" content="Manage your candidate assessment metrics, resume uploads, and interview history.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="dashboard.html" class="brand-logo">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">Dashboard</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+        <li><a href="upload.html" class="nav-link">Resume Upload</a></li>
+        <li><a href="interview.html" class="nav-link">Interview Chamber</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="result.html" class="nav-link">Results</a></li>
+      </ul>
+      <div class="nav-auth-actions">
+        <div class="user-profile-badge">
+          <div class="user-avatar">👤</div>
+          <span class="user-name-display" id="nav-user-name">Candidate</span>
+        </div>
+        <button id="logout-btn" class="btn btn-danger btn-sm" title="Sign out of current session">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Container -->
+  <main class="container">
+    <!-- Welcome Header -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-primary">Candidate Portal</span>
+          <span class="badge badge-success">Phase 1 & 2 Live</span>
+        </div>
+        <h1 class="page-title">
+          Welcome back, <span id="dashboard-welcome-name" style="color: #818cf8;">Candidate</span>!
+        </h1>
+        <p class="page-subtitle">
+          Track your mock interview progress, benchmark technical skills, and manage your assessment journey.
+        </p>
+      </div>
+      <div>
+        <a href="upload.html" class="btn btn-primary">
+          + Start New Assessment
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid-4" style="margin-bottom: 2.5rem;">
+      <!-- Stat 1 -->
+      <div class="glass-card stat-card">
+        <span class="stat-label">Interviews Completed</span>
+        <span class="stat-value" id="stat-interviews">0</span>
+        <span class="stat-hint">Mock sessions finished</span>
+      </div>
+
+      <!-- Stat 2 -->
+      <div class="glass-card stat-card">
+        <span class="stat-label">Resumes Analyzed</span>
+        <span class="stat-value" id="stat-resumes">0</span>
+        <span class="stat-hint">Profiles benchmarked</span>
+      </div>
+
+      <!-- Stat 3 -->
+      <div class="glass-card stat-card">
+        <span class="stat-label">Readiness Score</span>
+        <span class="stat-value" id="stat-score" style="color: #34d399;">92%</span>
+        <span class="stat-hint">Academic benchmark</span>
+      </div>
+
+      <!-- Stat 4 -->
+      <div class="glass-card stat-card">
+        <span class="stat-label">Target Role</span>
+        <span class="stat-value" id="stat-role" style="font-size: 1.35rem; color: #67e8f9; line-height: 1.3;">Full Stack</span>
+        <span class="stat-hint">Primary track</span>
+      </div>
+    </div>
+
+    <!-- Actions & Assessment Workflow Grid -->
+    <div class="grid-3" style="margin-bottom: 2.5rem;">
+      <!-- Action 1: Upload Resume -->
+      <div class="glass-card glass-card-hover" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="feature-icon-box">📄</div>
+          <h3>1. Resume Profiling</h3>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">
+            Upload your academic CV in PDF or DOCX format to define your technical skills and target role.
+          </p>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <a href="upload.html" class="btn btn-glass btn-block">Configure Resume &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Action 2: Mock Interview -->
+      <div class="glass-card glass-card-hover" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="feature-icon-box">🎙️</div>
+          <h3>2. Interview Chamber</h3>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">
+            Step into the interactive mock chamber with timed question prompts and response capture.
+          </p>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <a href="interview.html" class="btn btn-glass btn-block">Enter Chamber &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Action 3: Results & Feedback -->
+      <div class="glass-card glass-card-hover" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="feature-icon-box">📊</div>
+          <h3>3. Performance Analytics</h3>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">
+            Review your candidate readiness scorecard, skill breakdown, and personalized feedback.
+          </p>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <a href="result.html" class="btn btn-glass btn-block">View Scorecard &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h3>Recent Account Activity</h3>
+          <p style="font-size: 0.9rem; margin-top: 0.25rem;">Audit log of candidate sessions and system diagnostics</p>
+        </div>
+        <a href="history.html" class="btn btn-glass btn-sm">Full History</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="glass-table">
+          <thead>
+            <tr>
+              <th>Activity Description</th>
+              <th>Category</th>
+              <th>Date / Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="recent-activity-tbody">
+            <tr>
+              <td><strong>Account Setup &amp; Session Created</strong></td>
+              <td><span class="badge badge-primary">Auth System</span></td>
+              <td>Just now</td>
+              <td><span class="badge badge-success">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="logo-symbol" style="width: 28px; height: 28px; font-size: 0.85rem;">NH</div>
+        <span style="font-weight: 700; color: #fff;">NEXT HIRE</span>
+      </div>
+      <p class="footer-credit">
+        Master of Computer Applications (MCA) Academic Project &bull; Python Flask &amp; MySQL Full-Stack Architecture
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

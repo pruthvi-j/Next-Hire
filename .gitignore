@@ -1,0 +1,43 @@
+# =========================================================
+# NEXT HIRE - Git Ignore Rules
+# Protects secrets, temporary databases, and candidate uploads
+# =========================================================
+
+# Environment Variables & Secrets
+.env
+*.env
+backend/.env
+frontend/.env
+
+# Python Bytecode & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Local SQLite Database Files & Cache
+*.sqlite
+*.sqlite3
+*.db
+backend/nexthire_db.sqlite
+
+# Candidate Uploaded Files (Confidential CVs & Resumes)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE & Editor Cache
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Antigravity IDE agent data
+.agents/
+.gemini/

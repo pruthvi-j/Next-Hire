@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Profiling & Role Matching - NextHire</title>
+  <meta name="description" content="Upload your resume in PDF/DOCX format, extract technical competencies, and benchmark against industry target roles on NextHire.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .skill-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0.25rem;
+      backdrop-filter: blur(8px);
+      transition: var(--transition);
+    }
+    .skill-pill-matched {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #a7f3d0;
+    }
+    .skill-pill-missing {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fde68a;
+    }
+    .skill-pill-default {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #c7d2fe;
+    }
+    .role-option-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+    }
+    .role-option-card:hover {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+      transform: translateY(-2px);
+    }
+    .role-option-card.active {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.18);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+    }
+    .entity-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .progress-bar-container {
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="dashboard.html" class="brand-logo">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">Phase 3 &amp; 4</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="upload.html" class="nav-link active">Resume &amp; Roles</a></li>
+        <li><a href="interview.html" class="nav-link">Interview Chamber</a></li>
+        <li><a href="history.html" class="nav-link">History</a></li>
+        <li><a href="result.html" class="nav-link">Results</a></li>
+      </ul>
+      <div class="nav-auth-actions">
+        <div class="user-profile-badge">
+          <div class="user-avatar">👤</div>
+          <span class="user-name-display" id="nav-user-name">Candidate</span>
+        </div>
+        <button id="logout-btn" class="btn btn-danger btn-sm">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span class="badge badge-primary">Candidate Assessment Setup</span>
+          <span class="badge badge-success">Phases 3 &amp; 4 Active</span>
+        </div>
+        <h1 class="page-title">Resume Parsing &amp; Job Role Matching</h1>
+        <p class="page-subtitle">
+          Upload your resume (PDF or DOCX) to extract technical competencies, then select a target role to benchmark your skills.
+        </p>
+      </div>
+      <div>
+        <a href="dashboard.html" class="btn btn-glass btn-sm">&larr; Back to Dashboard</a>
+      </div>
+    </div>
+
+    <!-- Alert Notification Box -->
+    <div id="upload-alert" class="alert alert-danger" role="alert"></div>
+
+    <!-- =========================================================
+         SECTION 1: UPLOAD RESUME (Phase 3)
+         ========================================================= -->
+    <div class="grid-2" style="margin-bottom: 2.5rem;" id="upload-section">
+      <!-- File Ingestion Card -->
+      <div class="glass-card">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+          <div class="feature-icon-box" style="margin-bottom: 0; width: 44px; height: 44px; font-size: 1.25rem;">📄</div>
+          <div>
+            <h3>Upload Resume</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Supported formats: PDF, DOCX (Max size: 10MB)</p>
+          </div>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div id="resume-dropzone" class="dropzone" style="padding: 2.5rem 1.5rem; margin: 1.25rem 0;">
+          <div class="dropzone-icon" style="font-size: 2.5rem; margin-bottom: 0.5rem;">📥</div>
+          <h4 style="font-size: 1.1rem; margin-bottom: 0.35rem;">Drag &amp; drop your resume here</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            or click below to choose a document from your computer
+          </p>
+          <button type="button" id="choose-file-btn" class="btn btn-glass btn-sm">
+            Choose File
+          </button>
+          <input type="file" id="resume-file-input" style="display: none;" accept=".pdf,.docx">
+        </div>
+
+        <!-- File selected status -->
+        <div id="selected-file-info" style="display: none; margin-bottom: 1.25rem; padding: 0.85rem 1.25rem; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 0.85rem; color: #c7d2fe; font-weight: 600;">Selected Document:</span>
+              <div id="selected-file-name" style="color: #ffffff; font-weight: 500; font-size: 0.95rem; margin-top: 0.2rem;">file.pdf</div>
+            </div>
+            <span class="badge badge-primary" id="file-size-badge">PDF</span>
+          </div>
+        </div>
+
+        <!-- Upload & Parse Button -->
+        <button type="button" id="upload-submit-btn" class="btn btn-primary btn-block" disabled>
+          <span>Upload &amp; Extract Resume</span>
+        </button>
+      </div>
+
+      <!-- Parsing Guide / Instructions -->
+      <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h3>Automated NLP Extraction Pipeline</h3>
+          <p style="margin-top: 0.5rem; font-size: 0.95rem;">
+            NextHire utilizes <strong>PyMuPDF</strong> for PDF documents and <strong>python-docx</strong> for Word files to extract candidate details and index technical competencies directly into MySQL.
+          </p>
+
+          <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9rem;">
+              <span style="color: #34d399; font-weight: 700;">✓</span>
+              <span><strong>Entity Recognition:</strong> Extracts Candidate Name, Email, and Phone.</span>
+            </div>
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9rem;">
+              <span style="color: #34d399; font-weight: 700;">✓</span>
+              <span><strong>Skill Categorization:</strong> Identifies Programming Languages, Databases, Frameworks, and Tools.</span>
+            </div>
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9rem;">
+              <span style="color: #34d399; font-weight: 700;">✓</span>
+              <span><strong>Section Structuring:</strong> Captures Academic Projects, Certifications, Education, and Experience.</span>
+            </div>
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9rem;">
+              <span style="color: #34d399; font-weight: 700;">✓</span>
+              <span><strong>Benchmark Matching:</strong> Powers Phase 4 target job role suitability analysis.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.85rem; color: var(--text-muted);">
+          🔒 Uploaded resumes are validated with sanitized filenames and stored securely.
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         PARSED RESUME INFORMATION DISPLAY (Phase 3 Output)
+         ========================================================= -->
+    <div id="parsed-results-container" class="glass-card" style="display: none; margin-bottom: 2.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <h2>Extracted Resume Profile</h2>
+            <span class="badge badge-success">Parsed Successfully</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Document: <strong id="parsed-filename" style="color: #ffffff;">resume.pdf</strong>
+          </p>
+        </div>
+        <button type="button" id="reupload-btn" class="btn btn-glass btn-sm">
+          Upload Different Resume
+        </button>
+      </div>
+
+      <!-- Candidate Contact Information -->
+      <div class="entity-box">
+        <h4 style="color: #c7d2fe; margin-bottom: 0.75rem;">👤 Candidate Information</h4>
+        <div class="grid-3" style="font-size: 0.95rem;">
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.85rem; display: block;">Full Name:</span>
+            <strong id="parsed-name" style="color: #ffffff;">Candidate Name</strong>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.85rem; display: block;">Email Address:</span>
+            <span id="parsed-email" style="color: #ffffff;">email@example.com</span>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.85rem; display: block;">Phone Number:</span>
+            <span id="parsed-phone" style="color: #ffffff;">+91 9876543210</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Display (Categorized) -->
+      <div class="entity-box">
+        <h4 style="color: #c7d2fe; margin-bottom: 0.75rem;">⚡ Extracted Skills &amp; Competencies</h4>
+        <div id="categorized-skills-container" style="display: flex; flex-direction: column; gap: 1rem;">
+          <!-- Rendered dynamically by JS: Programming Languages, Databases, Frameworks, etc. -->
+        </div>
+      </div>
+
+      <!-- Projects, Certifications, Education & Experience Grid -->
+      <div class="grid-2">
+        <!-- Projects -->
+        <div class="entity-box">
+          <h4 style="color: #c7d2fe; margin-bottom: 0.75rem;">🚀 Academic &amp; Personal Projects</h4>
+          <div id="parsed-projects-list" style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="entity-box">
+          <h4 style="color: #c7d2fe; margin-bottom: 0.75rem;">🏆 Certifications &amp; Courses</h4>
+          <ul id="parsed-certs-list" style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-secondary);">
+            <!-- Populated dynamically -->
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Education -->
+        <div class="entity-box">
+          <h4 style="color: #c7d2fe; margin-bottom: 0.5rem;">🎓 Education Background</h4>
+          <p id="parsed-education" style="font-size: 0.9rem; color: #ffffff;">Master of Computer Applications (MCA)</p>
+        </div>
+
+        <!-- Experience -->
+        <div class="entity-box">
+          <h4 style="color: #c7d2fe; margin-bottom: 0.5rem;">💼 Professional / Academic Experience</h4>
+          <p id="parsed-experience" style="font-size: 0.9rem; color: var(--text-secondary);">Project development and engineering coursework.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         SECTION 2: JOB ROLE SELECTION & MATCHING (Phase 4)
+         ========================================================= -->
+    <div id="role-selection-section" class="glass-card" style="margin-bottom: 2.5rem;">
+      <div class="page-header" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <h2>Select Target Job Role (Phase 4)</h2>
+          <span class="badge badge-primary">Role Benchmarking</span>
+        </div>
+        <p class="page-subtitle">
+          Select the industry engineering profile you want to prepare for. NextHire will compare your extracted resume skills with the role's prerequisite requirements.
+        </p>
+      </div>
+
+      <!-- Role Selection Cards -->
+      <div class="grid-4" id="roles-cards-container" style="margin-bottom: 2rem;">
+        <!-- Populated dynamically: Python Developer, Data Analyst, Full Stack Developer, Software Engineer -->
+      </div>
+
+      <!-- Run Analysis Button -->
+      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 1rem;">
+        <span id="role-select-prompt" style="font-size: 0.9rem; color: var(--text-muted);">Please select a role above to analyze compatibility</span>
+        <button type="button" id="analyze-role-btn" class="btn btn-primary" disabled>
+          Analyze Skill Match &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         ROLE MATCHING ANALYSIS RESULTS (Phase 4 Output)
+         ========================================================= -->
+    <div id="role-analysis-results" class="glass-card" style="display: none; margin-bottom: 2.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+        <div>
+          <span class="badge badge-primary" id="match-role-badge">Target Role</span>
+          <h2 id="match-role-title" style="margin-top: 0.35rem;">Python Developer</h2>
+          <p id="match-role-desc" style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+            Role description and industry scope
+          </p>
+        </div>
+        
+        <!-- Score pill -->
+        <div style="text-align: right;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">Skill Compatibility Match</span>
+          <div id="match-percentage-display" style="font-family: 'Outfit', sans-serif; font-size: 2.75rem; font-weight: 800; color: #34d399; line-height: 1;">
+            75%
+          </div>
+          <span id="readiness-badge-display" class="badge badge-success">High Readiness</span>
+        </div>
+      </div>
+
+      <!-- Match Progress Bar -->
+      <div style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+          <span>Overall Competency Coverage</span>
+          <span id="match-ratio-text">6 of 8 Skills Matched</span>
+        </div>
+        <div class="progress-bar-container">
+          <div id="match-progress-bar" class="progress-bar-fill" style="width: 75%;"></div>
+        </div>
+      </div>
+
+      <!-- Matched vs Missing Skills Grid -->
+      <div class="grid-2" style="margin-bottom: 2rem;">
+        <!-- Matched Skills (✓) -->
+        <div class="entity-box" style="border-left: 3px solid #10b981;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <h4 style="color: #a7f3d0;">✓ Matched Skills in Resume</h4>
+            <span id="matched-count-badge" class="badge badge-success">0 Matched</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Skills successfully identified from your uploaded CV that satisfy this role:
+          </p>
+          <div id="matched-skills-container" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Missing / Recommended Skills (•) -->
+        <div class="entity-box" style="border-left: 3px solid #f59e0b;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <h4 style="color: #fde68a;">• Recommended Skills to Learn</h4>
+            <span id="missing-count-badge" class="badge badge-warning">0 Missing</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Key competencies recommended for this target engineering profile:
+          </p>
+          <div id="missing-skills-container" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Action: Proceed to Interview -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <div>
+          <span style="font-size: 0.9rem; color: var(--text-muted);">
+            Role benchmarking is saved to your candidate interview profile.
+          </span>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <a href="dashboard.html" class="btn btn-glass">Return to Dashboard</a>
+          <a href="interview.html" class="btn btn-primary" id="proceed-interview-btn">
+            Proceed to Interview Chamber &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="logo-symbol" style="width: 28px; height: 28px; font-size: 0.85rem;">NH</div>
+        <span style="font-weight: 700; color: #fff;">NEXT HIRE</span>
+      </div>
+      <p class="footer-credit">
+        Master of Computer Applications (MCA) Academic Project &bull; Python Flask &amp; MySQL Full-Stack Architecture
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/upload.js"></script>
+</body>
+</html>

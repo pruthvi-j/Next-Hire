@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NextHire - AI Mock Interview & Evaluation Platform</title>
+  <meta name="description" content="NextHire is an academic MCA full-stack platform providing AI-driven mock interviews, resume profiling, and candidate readiness assessment.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Liquid Glass Orbs -->
+  <div class="ambient-background">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="brand-logo" id="nav-brand">
+        <div class="logo-symbol">NH</div>
+        <span class="brand-name">NEXT HIRE</span>
+        <span class="brand-badge">MCA Project</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link active">Home</a></li>
+        <li><a href="#features" class="nav-link">Architecture</a></li>
+        <li><a href="#modules" class="nav-link">Modules</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+      </ul>
+      <div class="nav-auth-actions" id="nav-auth-actions">
+        <a href="login.html" class="btn btn-glass btn-sm" id="nav-login-btn">Sign In</a>
+        <a href="register.html" class="btn btn-primary btn-sm" id="nav-register-btn">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-pill">
+        <span>✨</span> Next-Generation MCA Capstone Platform &bull; Phase 1 & 2 Live
+      </div>
+      <h1 class="hero-title">
+        Intelligent Technical <br>
+        <span class="hero-title-accent">Mock Interview Assessments</span>
+      </h1>
+      <p class="hero-description">
+        NextHire bridges academic preparation with corporate hiring standards. Featuring secure authentication, automated role benchmarking, and real-time candidate readiness analytics built with Python Flask and MySQL.
+      </p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary" id="hero-cta-btn">
+          Create Candidate Account &rarr;
+        </a>
+        <a href="login.html" class="btn btn-glass" id="hero-login-btn">
+          Candidate Portal Login
+        </a>
+      </div>
+    </section>
+
+    <!-- Architecture & Features Grid -->
+    <section id="features" style="margin-top: 4rem;">
+      <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
+        <h2 class="page-title">Platform Architecture</h2>
+        <p class="page-subtitle">Built with high-performance Flask REST APIs and a Liquid Glass Design System</p>
+      </div>
+
+      <div class="grid-3">
+        <!-- Feature 1 -->
+        <div class="glass-card glass-card-hover">
+          <div class="feature-icon-box">🔐</div>
+          <h3>Secure Authentication</h3>
+          <p style="margin-top: 0.75rem;">
+            Robust candidate identity management utilizing salted cryptographic hashes, server-side HTTP-only session cookies, and MySQL data storage.
+          </p>
+          <div style="margin-top: 1.25rem;">
+            <span class="badge badge-success">Phase 1 & 2 Active</span>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-card glass-card-hover">
+          <div class="feature-icon-box">📄</div>
+          <h3>Resume Role Profiling</h3>
+          <p style="margin-top: 0.75rem;">
+            Translucent drag-and-drop file ingestion interface matching academic credentials and project experience to target engineering job roles.
+          </p>
+          <div style="margin-top: 1.25rem;">
+            <span class="badge badge-primary">Phase 2 Ready</span>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-card glass-card-hover">
+          <div class="feature-icon-box">🎯</div>
+          <h3>Adaptive AI Interviewing</h3>
+          <p style="margin-top: 0.75rem;">
+            Interactive assessment chamber designed for dynamic question generation and real-time response capture (scheduled for Phase 3).
+          </p>
+          <div style="margin-top: 1.25rem;">
+            <span class="badge badge-warning">Phase 3 Planned</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform Modules Roadmap -->
+    <section id="modules" style="margin-top: 5rem;">
+      <div class="glass-card" style="padding: 3rem 2.5rem;">
+        <div class="page-header">
+          <h2 class="page-title">Project Implementation Phases</h2>
+          <p class="page-subtitle">Adhering strictly to academic milestone progression</p>
+        </div>
+
+        <div class="grid-2" style="margin-top: 2rem;">
+          <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <h4 style="color: #a7f3d0;">Phase 1 & Phase 2 (Completed)</h4>
+              <span class="badge badge-success">Live & Operational</span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; color: var(--text-secondary); font-size: 0.95rem;">
+              <li style="margin-bottom: 0.5rem;">✓ MySQL Database & Users Table Initialization</li>
+              <li style="margin-bottom: 0.5rem;">✓ Python Flask REST APIs (Register, Login, Session, Dashboard)</li>
+              <li style="margin-bottom: 0.5rem;">✓ Password Hashing & Security Verification</li>
+              <li style="margin-bottom: 0.5rem;">✓ Liquid Glass UI Design System & 8 Academic Page Shells</li>
+              <li style="margin-bottom: 0.5rem;">✓ High-Contrast Accessible Form Inputs & Responsive Layouts</li>
+            </ul>
+          </div>
+
+          <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <h4 style="color: #cbd5e1;">Phase 3 & Phase 4 (Upcoming)</h4>
+              <span class="badge badge-primary">Next Milestones</span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; color: var(--text-muted); font-size: 0.95rem;">
+              <li style="margin-bottom: 0.5rem;">○ Natural Language Resume Parsing (NLP skill extraction)</li>
+              <li style="margin-bottom: 0.5rem;">○ Dynamic Domain Question Bank & Difficulty Scaling</li>
+              <li style="margin-bottom: 0.5rem;">○ Voice Audio Synthesis & Speech-to-Text Analysis</li>
+              <li style="margin-bottom: 0.5rem;">○ Multi-Dimensional Rubric Scoring & Exportable PDF Reports</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div class="logo-symbol" style="width: 28px; height: 28px; font-size: 0.85rem;">NH</div>
+        <span style="font-weight: 700; color: #fff;">NEXT HIRE</span>
+      </div>
+      <p class="footer-credit">
+        Master of Computer Applications (MCA) Academic Project &bull; Python Flask & MySQL Full-Stack Architecture
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
