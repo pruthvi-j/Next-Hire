@@ -3,9 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In - NextHire Portal</title>
-  <meta name="description" content="Sign in to your NextHire candidate assessment account.">
+  <title>Sign In - NextHire</title>
+  <meta name="description" content="Sign in to your NextHire mock interview portal.">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Login-specific overrides ── */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2.25rem;
+      text-decoration: none;
+    }
+
+    .login-brand .logo-symbol {
+      width: 56px;
+      height: 56px;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, #818cf8, #6366f1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+    }
+
+    .login-brand .brand-label {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #fff;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 20px;
+      padding: 2.5rem 2.25rem;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-card-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-card-header h1 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 0.5rem;
+    }
+
+    .login-card-header p {
+      font-size: 0.92rem;
+      color: var(--text-muted, #94a3b8);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .login-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 1.75rem 0;
+    }
+
+    .new-user-section {
+      text-align: center;
+      padding-top: 0.25rem;
+    }
+
+    .new-user-section p {
+      font-size: 0.88rem;
+      color: var(--text-muted, #94a3b8);
+      margin: 0 0 0.85rem;
+    }
+
+    .btn-create-account {
+      display: inline-block;
+      width: 100%;
+      padding: 0.75rem 1.5rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: #c7d2fe;
+      font-size: 0.93rem;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-create-account:hover {
+      background: rgba(129, 140, 248, 0.15);
+      border-color: rgba(129, 140, 248, 0.4);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* Bigger sign-in button */
+    #login-submit-btn {
+      padding: 0.9rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .forgot-link {
+      font-size: 0.8rem;
+      color: #818cf8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: #a5b4fc; }
+
+    .login-footer-note {
+      margin-top: 1.75rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(148, 163, 184, 0.5);
+    }
+  </style>
 </head>
 <body>
   <!-- Ambient Liquid Glass Orbs -->
@@ -15,90 +151,96 @@
     <div class="bg-orb orb-3"></div>
   </div>
 
-  <!-- Navigation Bar -->
-  <header class="navbar">
-    <div class="nav-container">
-      <a href="index.html" class="brand-logo">
-        <div class="logo-symbol">NH</div>
-        <span class="brand-name">NEXT HIRE</span>
-        <span class="brand-badge">Portal</span>
-      </a>
-      <div class="nav-auth-actions">
-        <a href="index.html" class="btn btn-glass btn-sm">Home</a>
-        <a href="register.html" class="btn btn-primary btn-sm">Register</a>
-      </div>
-    </div>
-  </header>
+  <!-- Centred login layout (no navbar) -->
+  <div class="login-wrapper">
 
-  <!-- Login Main Container -->
-  <main class="container-narrow">
-    <div class="glass-card">
-      <div style="text-align: center; margin-bottom: 2rem;">
-        <div class="logo-symbol" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.4rem;">NH</div>
-        <h2>Welcome Back</h2>
-        <p style="font-size: 0.95rem; margin-top: 0.35rem;">Enter your credentials to access your candidate portal</p>
+    <!-- Brand mark -->
+    <a href="login.html" class="login-brand" aria-label="NextHire home">
+      <div class="logo-symbol">NH</div>
+      <span class="brand-label">NEXT HIRE</span>
+    </a>
+
+    <!-- Login card -->
+    <div class="login-card">
+
+      <div class="login-card-header">
+        <h1>Welcome Back</h1>
+        <p>Sign in to continue to your NextHire mock interview.</p>
       </div>
 
-      <!-- Alert Notification Area -->
+      <!-- Alert area -->
       <div id="login-alert" class="alert alert-danger" role="alert"></div>
 
       <!-- Login Form -->
       <form id="login-form" novalidate>
-        <!-- Email Input -->
+
+        <!-- Email -->
         <div class="form-group">
-          <label class="form-label" for="email">Email Address</label>
+          <label class="form-label" for="email">Email</label>
           <div class="input-container">
             <span class="input-icon">✉</span>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              class="form-control" 
-              placeholder="candidate@university.edu" 
-              required 
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="you@example.com"
+              required
               autocomplete="email"
             >
           </div>
         </div>
 
-        <!-- Password Input -->
+        <!-- Password -->
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
             <label class="form-label" for="password" style="margin-bottom: 0;">Password</label>
-            <a href="#" onclick="alert('Password reset is scheduled for Phase 3. Please re-register or use your original password.'); return false;" style="font-size: 0.8rem; color: #818cf8;">Forgot password?</a>
+            <a href="#" class="forgot-link"
+               onclick="alert('Password reset is scheduled for a future phase. Please use your original password or re-register.'); return false;">
+              Forgot password?
+            </a>
           </div>
           <div class="input-container">
             <span class="input-icon">🔒</span>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              class="form-control" 
-              placeholder="Enter your account password" 
-              required 
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control"
+              placeholder="Enter your password"
+              required
               autocomplete="current-password"
             >
-            <button type="button" class="password-toggle" data-target="password" title="Show password" aria-label="Toggle password visibility">
+            <button type="button" class="password-toggle" data-target="password"
+                    title="Show password" aria-label="Toggle password visibility">
               👁️
             </button>
           </div>
         </div>
 
-        <!-- Submit Button -->
-        <div style="margin-top: 2rem;">
+        <!-- Sign In button -->
+        <div style="margin-top: 1.75rem;">
           <button type="submit" id="login-submit-btn" class="btn btn-primary btn-block">
-            Sign In to Dashboard
+            Sign In &rarr;
           </button>
         </div>
       </form>
 
-      <!-- Registration Footer Link -->
-      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-muted);">
-        Don't have an account yet? 
-        <a href="register.html" style="font-weight: 600; color: #818cf8;">Create Account</a>
+      <div class="login-divider"></div>
+
+      <!-- New user section -->
+      <div class="new-user-section">
+        <p>New to NextHire?</p>
+        <a href="register.html" class="btn-create-account" id="create-account-btn">
+          Create New Account
+        </a>
       </div>
     </div>
-  </main>
+
+    <p class="login-footer-note">
+      MCA Academic Project &bull; Python Flask &amp; MySQL
+    </p>
+  </div>
 
   <script src="js/main.js"></script>
   <script src="js/login.js"></script>
