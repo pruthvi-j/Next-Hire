@@ -213,7 +213,7 @@ def init_db():
                     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """)
-            # Questions (Phase 5)
+            # Questions (Phase 5 + Phase 9 Concept-Based Evaluation)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS questions (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -222,6 +222,8 @@ def init_db():
                     topic VARCHAR(100) NOT NULL,
                     difficulty VARCHAR(50) NOT NULL,
                     question_text TEXT NOT NULL,
+                    expected_answer TEXT DEFAULT NULL,
+                    key_concepts TEXT DEFAULT NULL,
                     active BOOLEAN DEFAULT TRUE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     INDEX idx_q_lang (language),
@@ -286,6 +288,14 @@ def init_db():
                 cursor.execute("ALTER TABLE answers ADD COLUMN feedback TEXT DEFAULT NULL")
                 cursor.execute("ALTER TABLE answers ADD COLUMN strength TEXT DEFAULT NULL")
                 cursor.execute("ALTER TABLE answers ADD COLUMN improvement TEXT DEFAULT NULL")
+
+            # Migrate questions table: add expected_answer and key_concepts if missing
+            cursor.execute("SHOW COLUMNS FROM questions LIKE 'expected_answer'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE questions ADD COLUMN expected_answer TEXT DEFAULT NULL")
+            cursor.execute("SHOW COLUMNS FROM questions LIKE 'key_concepts'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE questions ADD COLUMN key_concepts TEXT DEFAULT NULL")
 
             # Interview Results (Phase 8 Final Result & Personalized Feedback)
             cursor.execute("""
@@ -420,6 +430,8 @@ def init_db():
                 topic TEXT NOT NULL,
                 difficulty TEXT NOT NULL,
                 question_text TEXT NOT NULL,
+                expected_answer TEXT DEFAULT NULL,
+                key_concepts TEXT DEFAULT NULL,
                 active INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -489,6 +501,14 @@ def init_db():
         for col_name, col_type in sqlite_new_cols:
             if col_name not in existing_cols:
                 cursor.execute(f"ALTER TABLE answers ADD COLUMN {col_name} {col_type};")
+
+        # Migrate questions table: add expected_answer and key_concepts if missing
+        cursor.execute("PRAGMA table_info(questions);")
+        q_cols = [c[1] for c in cursor.fetchall()]
+        if 'expected_answer' not in q_cols:
+            cursor.execute("ALTER TABLE questions ADD COLUMN expected_answer TEXT DEFAULT NULL;")
+        if 'key_concepts' not in q_cols:
+            cursor.execute("ALTER TABLE questions ADD COLUMN key_concepts TEXT DEFAULT NULL;")
 
         # Interview Results (Phase 8 Final Result & Personalized Feedback)
         cursor.execute("""

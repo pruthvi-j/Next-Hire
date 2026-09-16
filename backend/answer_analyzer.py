@@ -1,12 +1,20 @@
 """
-NEXT HIRE - AI Answer Analysis, Scoring & Feedback Engine (Phases 7 & 8)
+NEXT HIRE - AI Answer Analysis, Scoring & Feedback Engine (Phases 7, 8 & 9)
 Master of Computer Applications (MCA) Academic Project
 
 This module performs:
 1. Multi-dimensional evaluation of candidate answers (Technical, Communication, Quality, Confidence).
-2. Integration with external AI APIs (Google Gemini, OpenAI) via environment variables.
-3. Academic Heuristic NLP Fallback evaluator when AI services are offline/unconfigured.
-4. Final interview evaluation, weighted scoring formula, and personalized recommendations.
+2. CONCEPT-BASED semantic answer matching (not exact string matching).
+3. Integration with external AI APIs (Google Gemini, OpenAI) via environment variables.
+4. Academic Heuristic NLP Fallback evaluator with synonym/concept mapping when AI is offline.
+5. Final interview evaluation, weighted scoring formula, and personalized recommendations.
+
+IMPORTANT - Evaluation Philosophy:
+  - Answers are evaluated on CONCEPT UNDERSTANDING, not memorization.
+  - The expected_answer is a REFERENCE ANSWER, not an exact required answer.
+  - Candidates are scored on meaning, technical correctness, and completeness.
+  - Different wording that conveys the same concept = HIGH score.
+  - Partial concept coverage = PARTIAL score (not zero).
 """
 
 import os
@@ -27,40 +35,136 @@ AI_SERVICE_URL = os.getenv('AI_SERVICE_URL')  # Optional custom LLM endpoint
 
 
 # =====================================================================
-# TECHNICAL DOMAIN KNOWLEDGE BASES (For Fallback & Validation)
+# CONCEPT SYNONYM MAPPING
+# Used to recognize equivalent technical terms during heuristic evaluation.
+# =====================================================================
+
+CONCEPT_SYNONYMS = {
+    # mutable
+    'mutable': ['can be changed', 'can be modified', 'modifiable', 'changeable', 'can change',
+                 'can edit', 'editable', 'can modify', 'modified', 'are modifiable',
+                 'allows modification', 'elements can be changed'],
+    'immutable': ['cannot be changed', 'cannot be modified', 'unmodifiable', 'unchangeable',
+                  'fixed', 'cannot change', 'cannot be altered', 'cannot normally be changed',
+                  'cannot be edited', 'cannot edit', 'not modifiable', 'cannot modify',
+                  'cannot be updated', 'not changed', 'cannot normally'],
+
+    # Memory / Pointers
+    'memory address': ['address in memory', 'address of', 'location in memory', 'memory location', 'stores the address'],
+    'pointer': ['stores address', 'holds address', 'contains address', 'points to'],
+    'null pointer': ['null value', 'invalid address', 'no valid target', 'not point to'],
+
+    # OOP
+    'class': ['blueprint', 'template', 'definition'],
+    'object': ['instance', 'instantiation'],
+    'inheritance': ['acquire', 'inherits', 'derived from', 'extends', 'parent class', 'child class'],
+    'encapsulation': ['combining data', 'restrict access', 'private fields', 'data hiding'],
+    'polymorphism': ['same interface', 'same method name', 'different behavior', 'different implementation'],
+    'overloading': ['same name but different', 'multiple methods with same name', 'different parameter'],
+    'overriding': ['subclass provides', 'own implementation', 'redefine method'],
+    'abstraction': ['hide implementation', 'abstract method'],
+
+    # Python specific
+    'high-level': ['high level', 'easy to read', 'readable', 'human-readable', 'abstracted'],
+    'interpreted': ['runs line by line', 'not compiled', 'run directly', 'executed directly',
+                    'interpreter', 'interprets'],
+    'general-purpose': ['general purpose', 'used for many things', 'versatile', 'multipurpose',
+                        'wide range', 'programming language'],
+    'dynamic typing': ['no type declaration', 'type at runtime', 'type is determined at runtime',
+                        'does not require type', 'no explicit type'],
+    'key-value': ['key value pairs', 'key-value pairs', 'key and value'],
+    'hashable': ['unique keys', 'keys must be unique'],
+    'shallow copy': ['copies outer object', 'shares nested', 'references nested'],
+    'deep copy': ['copies all levels', 'independent copy', 'recursively copies'],
+    'generator': ['yield', 'lazy evaluation', 'generates values on demand'],
+    'decorator': ['wraps function', 'modifies function', 'adds behavior'],
+
+    # SQL / Database
+    'filter': ['filters', 'filtering', 'filter records', 'filters records', 'filters rows', 'filter rows'],
+    'rows': ['records', 'row', 'data', 'entries', 'tuples'],
+    'before grouping': ['before group by', 'before the grouping', 'before the grouping operation', 'prior to grouping', 'before grouping operation'],
+    'filter rows': ['filter records', 'filter individual rows', 'filter data', 'filters the rows', 'filters records'],
+    'group by': ['grouping', 'grouping operation', 'groups rows', 'aggregate', 'group the data'],
+    'where': ['filters before', 'filters rows before grouping', 'condition before group', 'where clause'],
+    'having': ['filters after grouping', 'filter groups', 'after group by'],
+    'primary key': ['unique identifier', 'uniquely identifies each row', 'unique and non-null'],
+    'foreign key': ['references another table', 'referential integrity', 'references a key'],
+    'inner join': ['matching rows from both', 'only matching', 'rows where match exists'],
+    'left join': ['all rows from left', 'null values when no match', 'returns all from left'],
+    'normalization': ['reduce redundancy', 'eliminate redundancy', 'organized into related tables'],
+    'subquery': ['nested query', 'query inside', 'inner query'],
+    'acid': ['atomicity', 'consistency', 'isolation', 'durability', 'transaction properties'],
+    'ddl': ['create', 'alter', 'drop', 'define structure'],
+    'dml': ['insert', 'update', 'delete', 'manipulate data'],
+
+    # Java
+    'jvm': ['java virtual machine', 'bytecode execution', 'platform independence'],
+    'platform independence': ['write once run anywhere', 'runs on any platform', 'portable'],
+    'garbage collection': ['automatic memory', 'frees memory automatically', 'memory management'],
+    'interface': ['contract', 'abstract methods that classes must implement', 'multiple inheritance'],
+
+    # C language
+    'struct': ['structure', 'groups variables', 'user-defined data type'],
+    'malloc': ['allocates memory', 'memory allocation', 'allocate bytes'],
+    'calloc': ['allocates and initializes', 'initialized to zero'],
+    'dynamic memory': ['heap memory', 'runtime memory allocation', 'allocated during program execution'],
+    'pointer arithmetic': ['increment decrement pointer', 'move pointer', 'pointer moves'],
+    'storage class': ['scope', 'lifetime', 'linkage'],
+
+    # JavaScript
+    'closure': ['remembers variables', 'access outer scope', 'lexical scope', 'function remembers'],
+    'event bubbling': ['propagates upward', 'bubbles up', 'parent elements'],
+    'promise': ['asynchronous operation', 'pending fulfilled rejected', 'future value'],
+    'async await': ['asynchronous', 'simpler syntax for promises', 'handle asynchronous'],
+    'scope': ['where variables can be accessed', 'variable accessibility', 'where variables are accessible'],
+    'var': ['function scope', 'function-scoped', 'function scope only'],
+    'let': ['block scope', 'block-scoped', 'can be reassigned'],
+    'const': ['block scope', 'cannot be reassigned', 'binding cannot change'],
+    'arrow function': ['shorter syntax', 'lexical this', 'fat arrow'],
+}
+
+
+# =====================================================================
+# DOMAIN KNOWLEDGE BASES (For Fallback Validation)
 # =====================================================================
 
 DOMAIN_KEYWORDS = {
     'python': [
-        'list', 'tuple', 'dict', 'dictionary', 'set', 'mutable', 'immutable', 'decorator', 
-        'generator', 'yield', 'lambda', 'class', 'object', 'inheritance', 'polymorphism', 
-        'encapsulation', 'gil', 'global interpreter lock', 'memory', 'garbage collection', 
-        'comprehension', 'exception', 'try', 'except', 'module', 'package', 'dunder', 
-        'self', 'init', 'iterable', 'iterator', 'reference', 'dynamic typing'
+        'list', 'tuple', 'dict', 'dictionary', 'set', 'mutable', 'immutable', 'decorator',
+        'generator', 'yield', 'lambda', 'class', 'object', 'inheritance', 'polymorphism',
+        'encapsulation', 'gil', 'global interpreter lock', 'memory', 'garbage collection',
+        'comprehension', 'exception', 'try', 'except', 'module', 'package', 'dunder',
+        'self', 'init', 'iterable', 'iterator', 'reference', 'dynamic typing',
+        'interpreted', 'high-level', 'general-purpose', 'standard library', 'args', 'kwargs',
+        'shallow', 'deep', 'copy'
     ],
     'sql': [
-        'select', 'from', 'where', 'join', 'inner join', 'left join', 'right join', 'group by', 
-        'order by', 'having', 'aggregate', 'primary key', 'foreign key', 'unique', 'null', 
-        'index', 'b-tree', 'acid', 'atomicity', 'consistency', 'isolation', 'durability', 
-        'transaction', 'commit', 'rollback', 'normalization', '1nf', '2nf', '3nf', 
-        'view', 'trigger', 'stored procedure', 'schema', 'relational', 'table'
+        'select', 'from', 'where', 'join', 'inner join', 'left join', 'right join', 'group by',
+        'order by', 'having', 'aggregate', 'primary key', 'foreign key', 'unique', 'null',
+        'index', 'b-tree', 'acid', 'atomicity', 'consistency', 'isolation', 'durability',
+        'transaction', 'commit', 'rollback', 'normalization', '1nf', '2nf', '3nf',
+        'view', 'trigger', 'stored procedure', 'schema', 'relational', 'table',
+        'ddl', 'dml', 'subquery', 'asc', 'desc'
     ],
     'javascript': [
-        'var', 'let', 'const', 'scope', 'hoisting', 'closure', 'callback', 'promise', 
-        'async', 'await', 'event loop', 'call stack', 'dom', 'prototype', 'prototype chain', 
-        'arrow function', 'this', 'event bubbling', 'event delegation', 'json', 'api', 
-        'fetch', 'es6', 'destructuring', 'spread', 'rest', 'strict mode'
+        'var', 'let', 'const', 'scope', 'hoisting', 'closure', 'callback', 'promise',
+        'async', 'await', 'event loop', 'call stack', 'dom', 'prototype', 'prototype chain',
+        'arrow function', 'this', 'event bubbling', 'event delegation', 'json', 'api',
+        'fetch', 'es6', 'destructuring', 'spread', 'rest', 'strict mode',
+        'template literals', 'modules', 'classes', 'default parameters'
     ],
     'java': [
-        'jvm', 'jre', 'jdk', 'bytecode', 'garbage collector', 'oop', 'class', 'object', 
-        'inheritance', 'polymorphism', 'abstract', 'interface', 'encapsulation', 'overloading', 
-        'overriding', 'static', 'final', 'super', 'this', 'thread', 'multithreading', 
-        'exception', 'try-catch', 'collection', 'arraylist', 'hashmap', 'generics'
+        'jvm', 'jre', 'jdk', 'bytecode', 'garbage collector', 'oop', 'class', 'object',
+        'inheritance', 'polymorphism', 'abstract', 'interface', 'encapsulation', 'overloading',
+        'overriding', 'static', 'final', 'super', 'this', 'thread', 'multithreading',
+        'exception', 'try-catch', 'collection', 'arraylist', 'hashmap', 'generics',
+        'platform independence', 'robustness', 'portability'
     ],
     'c': [
-        'pointer', 'memory', 'malloc', 'calloc', 'free', 'realloc', 'structure', 'struct', 
-        'union', 'preprocessor', 'macro', 'header', 'array', 'string', 'null-terminated', 
-        'stack', 'heap', 'segmentation fault', 'recursion', 'function pointer', 'typedef'
+        'pointer', 'memory', 'malloc', 'calloc', 'free', 'realloc', 'structure', 'struct',
+        'union', 'preprocessor', 'macro', 'header', 'array', 'string', 'null-terminated',
+        'stack', 'heap', 'segmentation fault', 'recursion', 'function pointer', 'typedef',
+        'storage class', 'auto', 'register', 'static', 'extern', 'embedded', 'procedural'
     ]
 }
 
@@ -68,12 +172,13 @@ DOMAIN_KEYWORDS = {
 COMMUNICATION_POSITIVE_MARKERS = [
     'specifically', 'furthermore', 'for example', 'in particular', 'additionally',
     'consequently', 'therefore', 'primarily', 'in contrast', 'moreover',
-    'is defined as', 'operates by', 'ensures that', 'means that', 'responsible for'
+    'is defined as', 'operates by', 'ensures that', 'means that', 'responsible for',
+    'the difference', 'on the other hand', 'while', 'whereas', 'however'
 ]
 
 # Hedging / uncertainty markers (Observable speech/transcript signals)
 UNCERTAINTY_MARKERS = [
-    "maybe", "i guess", "not sure", "i don't know", "i think maybe", 
+    "maybe", "i guess", "not sure", "i don't know", "i think maybe",
     "probably", "might be", "not really sure", "um", "uh", "er", "dunno"
 ]
 
@@ -92,7 +197,7 @@ def call_gemini_api(prompt_text):
 
     # Supported model endpoints
     models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-pro']
-    
+
     for model_name in models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
         payload = {
@@ -104,7 +209,7 @@ def call_gemini_api(prompt_text):
                 "responseMimeType": "application/json"
             }
         }
-        
+
         try:
             req = urllib.request.Request(
                 url,
@@ -198,13 +303,195 @@ def _extract_json_from_text(text):
 
 
 # =====================================================================
-# ACADEMIC HEURISTIC NLP EVALUATION ENGINE (Guaranteed Fallback)
+# CONCEPT-BASED SEMANTIC MATCHING ENGINE
 # =====================================================================
 
-def evaluate_with_heuristic_nlp(question_text, answer_text, language='General', topic='General', difficulty='Medium', role_name='Software Engineer', resume_context=None):
+def _normalize_text(text):
+    """Lowercase and remove extra punctuation for comparison."""
+    return re.sub(r'[^\w\s]', ' ', (text or '').lower()).strip()
+
+
+def _text_contains_concept(text_lower, concept):
     """
-    High-precision, resilient NLP evaluator built on linguistics & concept mapping.
-    Ensures the system never crashes even if external AI APIs are unconfigured or down.
+    Checks if a text contains a concept, including synonym expansion.
+    Returns True if the concept OR any of its synonyms are present.
+    """
+    concept_lower = concept.lower().strip()
+
+    # Direct match
+    if concept_lower in text_lower:
+        return True
+
+    # Check synonyms from the CONCEPT_SYNONYMS map
+    synonyms = CONCEPT_SYNONYMS.get(concept_lower, [])
+    for syn in synonyms:
+        if syn.lower() in text_lower:
+            return True
+
+    # Reverse synonym lookup — check if candidate text maps back to this concept
+    for key, syns in CONCEPT_SYNONYMS.items():
+        for syn in syns:
+            if concept_lower in syn.lower() or syn.lower() == concept_lower:
+                if key.lower() in text_lower:
+                    return True
+
+    return False
+
+
+def evaluate_concept_match(expected_answer, candidate_answer, key_concepts_str,
+                           question_text='', topic='', difficulty='Medium'):
+    """
+    Core concept-based semantic evaluator.
+
+    Compares the candidate's answer against the expected answer using:
+    1. Key concept coverage (extracted concepts from expected answer)
+    2. Synonym expansion (different words for same technical concept)
+    3. Semantic overlap via n-gram matching
+    4. Partial credit for partial concept coverage
+
+    Returns a dict with:
+        concept_match: "high" / "medium" / "partial" / "low" / "none"
+        concept_score: float 0.0 – 5.0
+        matched_concepts: list
+        missing_concepts: list
+        completeness: float 0.0 – 5.0
+        feedback: str
+    """
+    if not candidate_answer or len(candidate_answer.strip()) < 5:
+        return {
+            'concept_match': 'none',
+            'concept_score': 0.0,
+            'matched_concepts': [],
+            'missing_concepts': [],
+            'completeness': 0.0,
+            'feedback': 'No meaningful answer provided.'
+        }
+
+    candidate_lower = _normalize_text(candidate_answer)
+    expected_lower = _normalize_text(expected_answer or '')
+
+    # Parse key concepts
+    raw_concepts = []
+    if key_concepts_str:
+        raw_concepts = [c.strip() for c in key_concepts_str.split(',') if c.strip()]
+
+    # If no key concepts available, extract from expected answer on-the-fly
+    if not raw_concepts and expected_answer:
+        # Simple fallback: use non-stop-word tokens from expected answer
+        stop = {'a', 'an', 'the', 'is', 'are', 'and', 'or', 'to', 'of', 'in', 'for',
+                'it', 'be', 'by', 'as', 'at', 'on', 'with', 'not', 'can', 'also',
+                'that', 'this', 'from', 'while', 'but', 'its', 'into', 'than',
+                'used', 'using', 'uses', 'such', 'more', 'when', 'if', 'these'}
+        words = _normalize_text(expected_answer).split()
+        raw_concepts = [w for w in words if w not in stop and len(w) > 2][:10]
+
+    # Score concept coverage
+    matched = []
+    missing = []
+
+    for concept in raw_concepts:
+        if _text_contains_concept(candidate_lower, concept):
+            matched.append(concept)
+        else:
+            missing.append(concept)
+
+    # Calculate coverage ratio
+    total_concepts = len(raw_concepts)
+    matched_count = len(matched)
+    coverage = matched_count / total_concepts if total_concepts > 0 else 0.5
+
+    # Calculate semantic overlap between candidate and expected (word-level Jaccard)
+    if expected_lower:
+        exp_words = set(expected_lower.split()) - {'a', 'an', 'the', 'is', 'are', 'and', 'or',
+                                                    'to', 'of', 'in', 'for', 'it', 'be', 'by',
+                                                    'not', 'can', 'that', 'this', 'from', 'but'}
+        cand_words = set(candidate_lower.split())
+        intersection = exp_words & cand_words
+        union = exp_words | cand_words
+        jaccard = len(intersection) / len(union) if union else 0.0
+    else:
+        jaccard = 0.0
+
+    # Combined score calibration:
+    # Concept coverage is the primary signal (85%). Jaccard word overlap is auxiliary (15%).
+    # When 100% of required concepts are matched (directly or via synonyms),
+    # the candidate has demonstrated full understanding → guarantee HIGH match (>= 0.80).
+    if coverage >= 1.0:
+        combined = max(0.85, (0.85 * coverage) + (0.15 * jaccard))
+    elif coverage >= 0.75:
+        combined = max(0.70, (0.80 * coverage) + (0.20 * jaccard))
+    else:
+        combined = (0.75 * coverage) + (0.25 * jaccard)
+
+    # Adjust for difficulty
+    difficulty_bonus = {'Easy': 0.0, 'Medium': 0.0, 'Hard': 0.05}.get(difficulty, 0.0)
+    combined = min(1.0, combined + difficulty_bonus)
+
+    # Map to concept_score (0-5) and concept_match label
+    concept_score = round(combined * 5.0, 1)
+
+    if combined >= 0.75:
+        concept_match = 'high'
+    elif combined >= 0.55:
+        concept_match = 'medium'
+    elif combined >= 0.30:
+        concept_match = 'partial'
+    elif combined >= 0.10:
+        concept_match = 'low'
+    else:
+        concept_match = 'none'
+
+    # Completeness: based on length relative to expected + concept coverage
+    expected_word_count = len((expected_answer or '').split())
+    candidate_word_count = len(candidate_answer.split())
+    length_ratio = min(1.0, candidate_word_count / max(expected_word_count, 1))
+    completeness = round(((coverage * 0.7) + (length_ratio * 0.3)) * 5.0, 1)
+    completeness = max(0.5, min(5.0, completeness))
+
+    # Targeted feedback
+    if concept_match == 'high':
+        feedback = f"Excellent concept understanding demonstrated. The answer correctly covers the core technical meaning."
+    elif concept_match == 'medium':
+        if missing:
+            feedback = f"Good understanding shown. The answer covers the main concept but is missing some detail on: {', '.join(missing[:2])}."
+        else:
+            feedback = f"Good understanding of the concept. Consider adding more specific technical detail."
+    elif concept_match == 'partial':
+        if matched:
+            feedback = f"Partially correct. You correctly mentioned: {', '.join(matched[:2])}. Missing key concepts: {', '.join(missing[:3])}."
+        else:
+            feedback = f"Partially on topic but missing the core technical concepts. Focus on: {', '.join(missing[:3])}."
+    elif concept_match == 'low':
+        feedback = f"The answer shows limited understanding of the concept. Key concepts to review: {', '.join(missing[:4])}."
+    else:
+        feedback = "The answer does not address the technical concept asked. Please review the fundamentals."
+
+    return {
+        'concept_match': concept_match,
+        'concept_score': concept_score,
+        'matched_concepts': matched,
+        'missing_concepts': missing,
+        'completeness': completeness,
+        'feedback': feedback
+    }
+
+
+# =====================================================================
+# ENHANCED HEURISTIC NLP EVALUATION ENGINE (Guaranteed Fallback)
+# =====================================================================
+
+def evaluate_with_heuristic_nlp(question_text, answer_text, language='General', topic='General',
+                                 difficulty='Medium', role_name='Software Engineer',
+                                 resume_context=None, expected_answer=None, key_concepts=None):
+    """
+    High-precision, resilient NLP evaluator built on concept matching & linguistics.
+    Now uses concept-based semantic evaluation as the PRIMARY scoring signal.
+
+    Scoring Philosophy:
+    - Concept coverage (weighted 60%): Does the candidate explain the right concepts?
+    - Communication clarity (weighted 20%): Is the explanation clear and structured?
+    - Answer completeness (weighted 20%): Is the answer sufficiently detailed?
+
     Scores 1-5 across Technical, Communication, Quality, and Confidence Estimate.
     """
     answer_clean = (answer_text or '').strip()
@@ -226,29 +513,56 @@ def evaluate_with_heuristic_nlp(question_text, answer_text, language='General', 
     word_count = len(words)
     answer_lower = answer_clean.lower()
 
-    # 1. Technical Knowledge Scoring (1 - 5)
+    # ---------------------------------------------------------------
+    # PRIMARY SCORING: Concept-Based Evaluation
+    # ---------------------------------------------------------------
+    concept_result = evaluate_concept_match(
+        expected_answer=expected_answer or '',
+        candidate_answer=answer_clean,
+        key_concepts_str=key_concepts or '',
+        question_text=question_text,
+        topic=topic,
+        difficulty=difficulty
+    )
+
+    concept_score = concept_result['concept_score']  # 0-5
+    concept_match = concept_result['concept_match']
+    matched_concepts = concept_result['matched_concepts']
+    missing_concepts = concept_result['missing_concepts']
+
+    # ---------------------------------------------------------------
+    # SECONDARY SCORING: Domain Keywords (Supplementary Signal)
+    # ---------------------------------------------------------------
     lang_key = (language or 'General').lower()
     known_kws = DOMAIN_KEYWORDS.get(lang_key, DOMAIN_KEYWORDS['python'])
     matched_kws = [kw for kw in known_kws if kw in answer_lower]
-
-    # Keyword density score
     kw_count = len(matched_kws)
-    if kw_count >= 5 or (kw_count >= 3 and word_count >= 30):
+
+    # ---------------------------------------------------------------
+    # 1. Technical Score (concept-led, keyword-supplemented)
+    # ---------------------------------------------------------------
+    if concept_score >= 4.0 or (concept_match in ['high'] and kw_count >= 1):
         tech_score = 5
-    elif kw_count >= 3 or (kw_count >= 2 and word_count >= 20):
+    elif concept_score >= 3.0 or concept_match == 'medium':
         tech_score = 4
-    elif kw_count >= 1 and word_count >= 15:
+    elif concept_score >= 2.0 or concept_match == 'partial':
         tech_score = 3
-    elif word_count >= 10:
+    elif concept_score >= 1.0 or (kw_count >= 1 and word_count >= 10):
         tech_score = 2
     else:
         tech_score = 1
 
-    # 2. Communication Clarity Scoring (1 - 5)
+    # Ensure partial-concept answers never score 0 (partial credit rule)
+    if concept_match == 'partial' and tech_score < 3:
+        tech_score = 3
+    if concept_match == 'low' and tech_score < 2:
+        tech_score = 2
+
+    # ---------------------------------------------------------------
+    # 2. Communication Clarity Scoring (1 – 5)
+    # ---------------------------------------------------------------
     comm_markers = sum(1 for m in COMMUNICATION_POSITIVE_MARKERS if m in answer_lower)
     filler_markers = sum(1 for u in UNCERTAINTY_MARKERS if re.search(r'\b' + re.escape(u) + r'\b', answer_lower))
-
-    # Sentence structure check (punctuation and capitalization)
     sentences = [s.strip() for s in re.split(r'[.!?]+', answer_clean) if s.strip()]
     sentence_count = len(sentences)
 
@@ -261,24 +575,26 @@ def evaluate_with_heuristic_nlp(question_text, answer_text, language='General', 
         comm_score -= 1
     if word_count < 10:
         comm_score = min(comm_score, 2)
-
     comm_score = max(1, min(5, comm_score))
 
-    # 3. Answer Quality & Completeness Scoring (1 - 5)
-    quality_score = 3
-    if word_count >= 40 and kw_count >= 3:
-        quality_score = 5
-    elif word_count >= 25 and kw_count >= 2:
-        quality_score = 4
-    elif word_count >= 15:
-        quality_score = 3
-    elif word_count >= 8:
-        quality_score = 2
-    else:
-        quality_score = 1
+    # ---------------------------------------------------------------
+    # 3. Answer Quality & Completeness Scoring (1 – 5)
+    # ---------------------------------------------------------------
+    # Use concept-based completeness as primary signal
+    quality_score = round(concept_result['completeness'])
 
-    # 4. Confidence Estimate (1 - 5)
-    # Important: Presented strictly as an estimate based on observable response/speech indicators.
+    # Cross-validate with length heuristic
+    if word_count < 5:
+        quality_score = min(quality_score, 1)
+    elif word_count < 10:
+        quality_score = min(quality_score, 2)
+
+    quality_score = max(1, min(5, quality_score))
+
+    # ---------------------------------------------------------------
+    # 4. Confidence Estimate (1 – 5)
+    # Observable based on response indicators only.
+    # ---------------------------------------------------------------
     confidence_score = 3
     if filler_markers == 0 and comm_markers >= 1 and word_count >= 20:
         confidence_score = 5
@@ -289,22 +605,29 @@ def evaluate_with_heuristic_nlp(question_text, answer_text, language='General', 
     elif word_count < 8:
         confidence_score = 1
 
+    # ---------------------------------------------------------------
     # 5. Tailored Feedback, Strength, and Improvement Tip
+    # ---------------------------------------------------------------
     topic_str = topic if topic and topic != 'General' else language
-    if matched_kws:
-        strength = f"Good grasp of core {language} concepts, particularly mentioning {', '.join(matched_kws[:2])}."
-    else:
-        strength = f"Attempted response addressing {topic_str} in context of {role_name}."
 
-    if tech_score >= 4:
-        feedback = f"Strong and coherent explanation demonstrating sound technical understanding of {topic_str}."
-        improvement = f"Continue deepening knowledge with practical edge cases and production trade-offs in {language}."
-    elif tech_score == 3:
-        feedback = f"Satisfactory answer covering foundational aspects of {topic_str}, but could benefit from greater technical depth."
-        improvement = f"Include concrete syntax examples or architectural details when discussing {topic_str}."
+    # Use concept evaluation feedback as primary feedback
+    feedback = concept_result['feedback']
+
+    # Build strength message
+    if matched_concepts:
+        strength = f"Good grasp of key concepts: {', '.join(matched_concepts[:3])}."
+    elif matched_kws:
+        strength = f"Good use of {language} technical vocabulary: {', '.join(matched_kws[:2])}."
     else:
-        feedback = f"Basic overview provided. The response lacks key technical terms and comprehensive explanation for {topic_str}."
-        improvement = f"Review standard definitions and operational mechanics of {topic_str} in {language}."
+        strength = f"Attempted to address {topic_str} in the context of {role_name}."
+
+    # Build improvement message
+    if missing_concepts:
+        improvement = f"To score higher, include these key concepts: {', '.join(missing_concepts[:3])}."
+    elif concept_match in ['high', 'medium']:
+        improvement = f"Consider adding concrete examples or code snippets to reinforce your explanation of {topic_str}."
+    else:
+        improvement = f"Review the definition and working of {topic_str} in {language}, focusing on technical precision."
 
     return {
         'technical_score': tech_score,
@@ -314,19 +637,30 @@ def evaluate_with_heuristic_nlp(question_text, answer_text, language='General', 
         'feedback': feedback,
         'strength': strength,
         'improvement': improvement,
+        'concept_match': concept_match,
+        'matched_concepts': matched_concepts,
+        'missing_concepts': missing_concepts,
         'source': 'heuristic_nlp_fallback'
     }
 
 
 # =====================================================================
-# PUBLIC AI ANALYSIS INTERFACE (Phase 7)
+# PUBLIC AI ANALYSIS INTERFACE (Phase 7 + Phase 9 Concept Evaluation)
 # =====================================================================
 
-def analyze_answer(question_text, answer_text, language='General', topic='General', difficulty='Medium', role_name='Software Engineer', resume_context=None):
+def analyze_answer(question_text, answer_text, language='General', topic='General',
+                   difficulty='Medium', role_name='Software Engineer',
+                   resume_context=None, expected_answer=None, key_concepts=None):
     """
-    Main entrypoint for Phase 7 AI Answer Analysis.
-    Tries external AI APIs (Gemini/OpenAI) first.
-    Gracefully falls back to heuristic NLP without application crash.
+    Main entrypoint for AI Answer Analysis with Concept-Based Evaluation.
+
+    Evaluation Priority:
+    1. Google Gemini API (with concept-based prompt) — best quality
+    2. OpenAI GPT API (with concept-based prompt) — high quality
+    3. Heuristic NLP + Concept Matcher — always available, no API required
+
+    The expected_answer is ALWAYS used as a reference only.
+    The evaluation is based on conceptual understanding, not exact wording.
     """
     answer_clean = (answer_text or '').strip()
 
@@ -343,38 +677,64 @@ def analyze_answer(question_text, answer_text, language='General', topic='Genera
             'source': 'system_empty_handler'
         }
 
-    # Prepare prompt for LLM
+    # Prepare concept-aware prompt for LLM
     resume_note = f"Candidate Resume Context: {resume_context}" if resume_context else "Candidate: Technical Job Applicant"
-    prompt = f"""You are NextHire's AI Technical Interview Evaluator for the job role '{role_name}'.
-Analyze the following candidate answer to the technical interview question.
 
-[INTERVIEW QUESTION]
+    # Build expected answer section for the AI prompt
+    expected_section = ""
+    if expected_answer:
+        expected_section = f"""
+REFERENCE ANSWER (for concept comparison only — NOT required exact wording):
+"{expected_answer}"
+
+KEY CONCEPTS to evaluate against:
+{key_concepts or 'Identify from the reference answer above.'}
+
+EVALUATION RULES:
+- Do NOT require the candidate to use the exact words from the reference answer.
+- Do NOT penalize different but technically equivalent phrasing.
+- DO reward the candidate if they explain the same concept using different words or examples.
+- DO give partial credit if the candidate covers the main concept but misses some details.
+- DO give low score only if the technical meaning is wrong or completely unrelated.
+"""
+
+    prompt = f"""You are NextHire's AI Technical Interview Evaluator for the job role '{role_name}'.
+Evaluate the candidate's answer based on CONCEPTUAL UNDERSTANDING and TECHNICAL MEANING.
+
+[INTERVIEW CONTEXT]
 Question: {question_text}
 Language/Domain: {language}
 Topic: {topic}
 Difficulty: {difficulty}
 Target Role: {role_name}
 {resume_note}
-
+{expected_section}
 [CANDIDATE ANSWER]
 "{answer_clean}"
 
-Evaluate the candidate's answer and produce:
-1. technical_score: Integer 1 to 5 (Technical knowledge and accuracy)
-2. communication_score: Integer 1 to 5 (Clarity, structure, and readability)
-3. quality_score: Integer 1 to 5 (Completeness and depth of answer)
-4. confidence_score: Integer 1 to 5 (Estimate based strictly on observable response fluency and assertion, not psychological diagnosis)
-5. feedback: Short 1-2 sentence constructive evaluation.
-6. strength: One notable strength observed in the answer.
-7. improvement: One specific actionable area for improvement.
+Scoring Guidelines:
+- technical_score 5: Candidate clearly understands the concept, even in different words.
+- technical_score 4: Candidate mostly correct, minor omissions.
+- technical_score 3: Main concept understood but important details missing (PARTIAL credit).
+- technical_score 2: Some relevant ideas but significant technical gaps or mild misconception.
+- technical_score 1: Incorrect technical meaning or completely unrelated answer.
 
-Output ONLY a JSON object matching this exact schema:
+Evaluate and produce:
+1. technical_score: Integer 1-5 (concept understanding & technical accuracy)
+2. communication_score: Integer 1-5 (clarity, structure, readability)
+3. quality_score: Integer 1-5 (completeness and depth)
+4. confidence_score: Integer 1-5 (observable response fluency estimate only)
+5. feedback: 1-2 sentence evaluation noting concept accuracy.
+6. strength: One specific strength in the answer.
+7. improvement: One specific, actionable improvement.
+
+Output ONLY a JSON object:
 {{
   "technical_score": 4,
   "communication_score": 4,
   "quality_score": 4,
   "confidence_score": 4,
-  "feedback": "Concise feedback text.",
+  "feedback": "Concise concept-focused feedback.",
   "strength": "Key strength.",
   "improvement": "Key area for improvement."
 }}"""
@@ -397,7 +757,7 @@ Output ONLY a JSON object matching this exact schema:
         except Exception:
             pass
 
-    # Graceful fallback: Heuristic NLP
+    # Graceful fallback: Heuristic NLP with Concept Matcher
     return evaluate_with_heuristic_nlp(
         question_text=question_text,
         answer_text=answer_clean,
@@ -405,7 +765,9 @@ Output ONLY a JSON object matching this exact schema:
         topic=topic,
         difficulty=difficulty,
         role_name=role_name,
-        resume_context=resume_context
+        resume_context=resume_context,
+        expected_answer=expected_answer,
+        key_concepts=key_concepts
     )
 
 
@@ -439,11 +801,13 @@ def _normalize_evaluation_dict(d, source):
 def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=None):
     """
     Evaluates an individual answer and saves the scores and feedback in the answers table.
+    Now fetches expected_answer and key_concepts for concept-based evaluation.
     """
-    # Fetch question metadata and interview context
+    # Fetch question metadata, expected answer, and key concepts
     q_data = fetch_one(
         """
         SELECT q.question_text, q.language, q.topic, q.difficulty,
+               q.expected_answer, q.key_concepts,
                r.role_name
         FROM questions q
         JOIN interview_questions iq ON iq.question_id = q.id
@@ -455,22 +819,29 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
     )
 
     if not q_data:
-        q_data = fetch_one("SELECT question_text, language, topic, difficulty FROM questions WHERE id = %s", (question_id,))
+        q_data = fetch_one(
+            "SELECT question_text, language, topic, difficulty, expected_answer, key_concepts FROM questions WHERE id = %s",
+            (question_id,)
+        )
 
     question_text = q_data['question_text'] if q_data else 'Technical question'
     language = q_data.get('language', 'General') if q_data else 'General'
     topic = q_data.get('topic', 'General') if q_data else 'General'
     difficulty = q_data.get('difficulty', 'Medium') if q_data else 'Medium'
     role_name = q_data.get('role_name', 'Software Engineer') if q_data else 'Software Engineer'
+    expected_answer = q_data.get('expected_answer', '') if q_data else ''
+    key_concepts = q_data.get('key_concepts', '') if q_data else ''
 
-    # Run AI / NLP Analysis
+    # Run AI / NLP Analysis with concept-based evaluation
     eval_result = analyze_answer(
         question_text=question_text,
         answer_text=answer_text,
         language=language,
         topic=topic,
         difficulty=difficulty,
-        role_name=role_name
+        role_name=role_name,
+        expected_answer=expected_answer,
+        key_concepts=key_concepts
     )
 
     # Save to answers table
@@ -506,8 +877,8 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
     else:
         answer_id = execute_query(
             """
-            INSERT INTO answers 
-            (interview_id, question_id, answer_text, technical_score, communication_score, 
+            INSERT INTO answers
+            (interview_id, question_id, answer_text, technical_score, communication_score,
              quality_score, confidence_score, feedback, strength, improvement)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
@@ -537,10 +908,10 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
 SCORING FORMULA DOCUMENTATION:
 -----------------------------
 Each answered question receives scores from 1 to 5 across 4 dimensions:
-1. S_tech : Technical Knowledge & Accuracy (1-5)
-2. S_qual : Answer Quality & Completeness (1-5)
-3. S_comm : Communication Clarity (1-5)
-4. S_conf : Observable Confidence Estimate (1-5)
+1. S_tech : Technical Knowledge & Accuracy (1-5)  — based on CONCEPT MATCH
+2. S_qual : Answer Quality & Completeness (1-5)   — based on concept coverage + length
+3. S_comm : Communication Clarity (1-5)           — based on structure & articulation
+4. S_conf : Observable Confidence Estimate (1-5)  — based on response fluency indicators
 
 Average Dimension Scores:
   Avg_Tech = sum(S_tech) / N
@@ -555,10 +926,10 @@ Weighted Final Overall Score (Percentage 0 to 100%):
                          0.15 * (Avg_Conf / 5.0))
 
 Weight Distribution:
-- Technical Skills: 40% (Core domain accuracy and algorithmic competency)
-- Answer Quality:   25% (Depth, comprehensive coverage, and relevance)
-- Communication:    20% (Sentence structure, technical vocabulary, conciseness)
-- Confidence:       15% (Observable speech/response fluency and decisiveness)
+- Technical Skills: 40% (Core concept accuracy — NOT keyword memorization)
+- Answer Quality:   25% (Depth, completeness, concept coverage)
+- Communication:    20% (Structure, vocabulary, clarity)
+- Confidence:       15% (Observable response fluency and decisiveness)
 """
 
 def calculate_final_scores(answers_list):
@@ -643,7 +1014,7 @@ def synthesize_personalized_feedback(answers_list, role_name='Software Engineer'
     # Synthesize clean bullet points if sparse
     if high_scoring_topics:
         top_lang = high_scoring_topics[0][0]
-        strengths.insert(0, f"Good {top_lang} knowledge and conceptual understanding.")
+        strengths.insert(0, f"Good {top_lang} conceptual understanding demonstrated.")
     else:
         strengths.append("Willingness to attempt diverse technical question prompts.")
 
@@ -652,9 +1023,9 @@ def synthesize_personalized_feedback(answers_list, role_name='Software Engineer'
 
     if low_scoring_topics:
         low_lang, low_topic = low_scoring_topics[0]
-        weaknesses.insert(0, f"Deepen explanation clarity for {low_topic} in {low_lang}.")
+        weaknesses.insert(0, f"Deepen concept explanation clarity for {low_topic} in {low_lang}.")
     else:
-        weaknesses.append("Give more complete and detailed answers with code/syntax examples.")
+        weaknesses.append("Give more complete and detailed answers with examples or analogies.")
 
     if len(weaknesses) < 2:
         weaknesses.append("Improve technical communication by reducing filler hesitation words.")
@@ -662,18 +1033,18 @@ def synthesize_personalized_feedback(answers_list, role_name='Software Engineer'
     # Actionable Recommendations
     for lang in languages_covered:
         if lang.lower() == 'python':
-            recommendations.append("Practice Python OOP and generator/decorator patterns.")
+            recommendations.append("Practice explaining Python OOP concepts (inheritance, polymorphism, encapsulation) with examples.")
         elif lang.lower() == 'sql':
-            recommendations.append("Practice complex SQL queries including multi-table joins and aggregation.")
+            recommendations.append("Practice complex SQL queries including JOINs, GROUP BY, and HAVING clauses.")
         elif lang.lower() == 'javascript':
-            recommendations.append("Master modern JavaScript closures, asynchronous event loop, and promises.")
+            recommendations.append("Master closures, asynchronous JavaScript (async/await, Promises), and scope.")
         elif lang.lower() == 'java':
-            recommendations.append("Review Java multithreading, memory model, and collections framework.")
+            recommendations.append("Review Java OOP pillars, multithreading, and the collections framework.")
         elif lang.lower() == 'c':
-            recommendations.append("Strengthen pointer arithmetic, dynamic memory allocation, and struct design.")
+            recommendations.append("Strengthen pointer arithmetic, dynamic memory management, and structures.")
 
-    recommendations.append("Improve technical communication using structured explanations (Definition -> Example -> Trade-off).")
-    recommendations.append(f"Benchmarked review for {role_name} interview scenarios.")
+    recommendations.append("Structure answers as: Definition → How it works → Example → Use case.")
+    recommendations.append(f"Review {role_name} interview topics and practice explaining concepts in your own words.")
 
     # Limit to top 3-4 each
     return {
@@ -712,11 +1083,12 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
             detailed_answers = _fetch_detailed_interview_answers(interview_id)
             return _format_result_payload(interview, existing_res, detailed_answers)
 
-    # 2. Fetch all assigned questions and candidate answers
+    # 2. Fetch all assigned questions and candidate answers (including expected_answer and key_concepts)
     assigned_questions = fetch_all(
         """
-        SELECT iq.question_order, q.id as question_id, q.question_code, q.language, 
+        SELECT iq.question_order, q.id as question_id, q.question_code, q.language,
                q.topic, q.difficulty, q.question_text,
+               q.expected_answer, q.key_concepts,
                a.id as answer_id, a.answer_text, a.technical_score, a.communication_score,
                a.quality_score, a.confidence_score, a.feedback, a.strength, a.improvement
         FROM interview_questions iq
@@ -742,7 +1114,9 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
                 language=item['language'],
                 topic=item['topic'],
                 difficulty=item['difficulty'],
-                role_name=role_name
+                role_name=role_name,
+                expected_answer=item.get('expected_answer', ''),
+                key_concepts=item.get('key_concepts', '')
             )
             # Store scores in database
             if item.get('answer_id'):
@@ -769,7 +1143,7 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
                 # Candidate skipped or left blank; record placeholder answer record
                 ans_id = execute_query(
                     """
-                    INSERT INTO answers 
+                    INSERT INTO answers
                     (interview_id, question_id, answer_text, technical_score, communication_score,
                      quality_score, confidence_score, feedback, strength, improvement)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -880,7 +1254,7 @@ def _fetch_detailed_interview_answers(interview_id):
     """Fetches questions and evaluated answers for detailed breakdown view."""
     return fetch_all(
         """
-        SELECT iq.question_order, q.id as question_id, q.question_code, q.language, 
+        SELECT iq.question_order, q.id as question_id, q.question_code, q.language,
                q.topic, q.difficulty, q.question_text,
                a.id as answer_id, a.answer_text, a.technical_score, a.communication_score,
                a.quality_score, a.confidence_score, a.feedback, a.strength, a.improvement
@@ -915,11 +1289,11 @@ def _format_result_payload(interview, res_record, detailed_answers):
     qual = float(res_record['quality_score'])
     conf = float(res_record['confidence_score'])
 
-    ai_engine = "Academic Heuristic NLP Evaluator (Active)"
+    ai_engine = "Academic Heuristic NLP + Concept Matcher (Active)"
     if GEMINI_API_KEY:
-        ai_engine = "Google Gemini AI (Active via GEMINI_API_KEY)"
+        ai_engine = "Google Gemini AI + Concept Evaluation (Active via GEMINI_API_KEY)"
     elif OPENAI_API_KEY:
-        ai_engine = "OpenAI GPT-4o-mini (Active via OPENAI_API_KEY)"
+        ai_engine = "OpenAI GPT-4o-mini + Concept Evaluation (Active via OPENAI_API_KEY)"
 
     return {
         'interview_id': interview['id'],
@@ -958,6 +1332,7 @@ def _format_result_payload(interview, res_record, detailed_answers):
         'recommendations': parse_json_or_list(res_record['recommendations']),
         'ai_service_info': {
             'engine': ai_engine,
+            'evaluation_method': 'Concept-based semantic matching (not exact string comparison)',
             'confidence_disclaimer': 'Confidence must be presented as an estimate based on observable response/speech indicators, not as a psychological diagnosis or guaranteed measurement.'
         },
         'questions_details': [

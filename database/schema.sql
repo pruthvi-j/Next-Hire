@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS user_selected_roles (
     INDEX idx_user_role (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 9. Questions Table (Phase 5 Question Bank)
+-- 9. Questions Table (Phase 5 Question Bank + Phase 9 Concept-Based Evaluation)
 CREATE TABLE IF NOT EXISTS questions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     question_code VARCHAR(50) NOT NULL UNIQUE,
@@ -106,6 +106,8 @@ CREATE TABLE IF NOT EXISTS questions (
     topic VARCHAR(100) NOT NULL,
     difficulty VARCHAR(50) NOT NULL,
     question_text TEXT NOT NULL,
+    expected_answer TEXT DEFAULT NULL,
+    key_concepts TEXT DEFAULT NULL,
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_q_lang (language),

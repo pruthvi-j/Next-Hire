@@ -913,3 +913,715 @@ a:hover {
   justify-content: center;
   font-size: 1.2rem;
 }
+
+/* =========================================================
+   NEXT HIRE - Siri-Style Voice Animation & Interview Chamber
+   iOS Glassmorphism & Animated AI Orb
+   ========================================================= */
+
+/* Chamber Layout & Cards */
+.interview-chamber-card {
+  background: rgba(12, 17, 29, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.75), 
+              0 0 1px 1px rgba(255, 255, 255, 0.08) inset;
+  padding: 2.25rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.interview-chamber-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), rgba(6, 182, 212, 0.6), transparent);
+  pointer-events: none;
+}
+
+/* Chamber Top Header Meta Bar */
+.chamber-meta-bar {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.chamber-meta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chamber-meta-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.chamber-title-text h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.chamber-subtitle {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chamber-meta-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.chamber-progress-container {
+  margin-top: 1rem;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chamber-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #06b6d4, #a855f7);
+  border-radius: 6px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+}
+
+/* AI Interviewer Speech Bubble */
+.ai-speaker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 30px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #c7d2fe;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ai-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  animation: dotPulse 2s infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.ai-speech-bubble {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  margin: 1.25rem 0 2rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.ai-speech-bubble:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.ai-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid rgba(255, 255, 255, 0.08);
+}
+
+.ai-question-text {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+  text-align: center;
+  margin: 0.75rem 0;
+}
+
+/* =========================================================
+   THE HERO AI ORB - SIRI-INSPIRED VOICE CORE
+   ========================================================= */
+.ai-orb-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0 1.75rem;
+  position: relative;
+  width: 100%;
+}
+
+.orb-wrapper {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ambient Neon Glow Aura behind the Orb */
+.orb-ambient-aura {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  filter: blur(55px);
+  pointer-events: none;
+  opacity: 0.45;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, rgba(6, 182, 212, 0.3) 45%, rgba(139, 92, 246, 0.2) 75%, transparent 100%);
+  transition: transform 0.65s cubic-bezier(0.25, 1, 0.3, 1), 
+              opacity 0.65s ease, 
+              background 0.65s ease;
+  z-index: 0;
+}
+
+.orb-ambient-aura.aura-listening {
+  opacity: 0.85;
+  transform: scale(1.4);
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(217, 70, 239, 0.45) 45%, rgba(6, 182, 212, 0.35) 75%, transparent 100%);
+}
+
+.orb-ambient-aura.aura-speaking {
+  opacity: 0.85;
+  transform: scale(1.35);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.65) 0%, rgba(168, 85, 247, 0.55) 45%, rgba(6, 182, 212, 0.35) 75%, transparent 100%);
+}
+
+.orb-ambient-aura.aura-thinking {
+  opacity: 0.65;
+  transform: scale(1.15);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.5) 0%, rgba(139, 92, 246, 0.4) 50%, transparent 80%);
+}
+
+.orb-ambient-aura.aura-idle {
+  opacity: 0.45;
+  transform: scale(1);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, rgba(6, 182, 212, 0.3) 45%, rgba(139, 92, 246, 0.2) 75%, transparent 100%);
+}
+
+/* Outer Soft Glow Pulse Rings */
+.orb-pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+.state-listening ~ .orb-pulse-ring,
+.state-speaking ~ .orb-pulse-ring {
+  opacity: 1;
+}
+
+/* Core Orb Container */
+.ai-orb {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 2;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.65s cubic-bezier(0.25, 1, 0.3, 1),
+              box-shadow 0.65s ease,
+              filter 0.65s ease;
+  will-change: transform, box-shadow;
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.35),
+              0 0 60px rgba(6, 182, 212, 0.25),
+              inset 0 0 25px rgba(255, 255, 255, 0.25);
+  animation: orbFloat 4.5s ease-in-out infinite alternate;
+}
+
+/* Orb States */
+.ai-orb.state-idle {
+  transform: scale(1);
+  box-shadow: 0 0 28px rgba(99, 102, 241, 0.35),
+              0 0 55px rgba(6, 182, 212, 0.2),
+              inset 0 0 25px rgba(255, 255, 255, 0.25);
+}
+
+.ai-orb.state-listening {
+  transform: scale(2.05); /* ~266px */
+  box-shadow: 0 0 45px rgba(239, 68, 68, 0.5),
+              0 0 90px rgba(168, 85, 247, 0.45),
+              0 0 140px rgba(6, 182, 212, 0.35),
+              inset 0 0 35px rgba(255, 255, 255, 0.4);
+  animation: orbFloat 3s ease-in-out infinite alternate,
+             orbListeningPulse 1.8s ease-in-out infinite alternate;
+}
+
+.ai-orb.state-speaking {
+  transform: scale(1.65); /* ~215px - slightly enlarged with soft pulse */
+  box-shadow: 0 0 45px rgba(99, 102, 241, 0.6),
+              0 0 85px rgba(217, 70, 239, 0.5),
+              0 0 130px rgba(6, 182, 212, 0.35),
+              inset 0 0 30px rgba(255, 255, 255, 0.4);
+  animation: orbFloat 3.5s ease-in-out infinite alternate,
+             orbSpeakingPulse 1.8s ease-in-out infinite alternate;
+}
+
+.ai-orb.state-thinking {
+  transform: scale(1.35); /* ~175px */
+  box-shadow: 0 0 35px rgba(245, 158, 11, 0.5),
+              0 0 75px rgba(139, 92, 246, 0.4),
+              inset 0 0 25px rgba(255, 255, 255, 0.3);
+  animation: orbFloat 2.8s ease-in-out infinite alternate,
+             orbThinkingBreathe 2s ease-in-out infinite alternate;
+}
+
+/* Internal Layers of the AI Orb */
+.orb-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.orb-layer-base {
+  background: radial-gradient(circle at 35% 30%, #38bdf8 0%, #6366f1 35%, #7c3aed 65%, #0b0f19 100%);
+  z-index: 1;
+}
+
+.orb-layer-plasma-1 {
+  background: radial-gradient(circle at 75% 65%, rgba(236, 72, 153, 0.9) 0%, rgba(139, 92, 246, 0.75) 40%, transparent 75%);
+  mix-blend-mode: screen;
+  filter: blur(8px);
+  animation: orbShiftPlasma1 9s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
+.orb-layer-plasma-2 {
+  background: conic-gradient(from 180deg at 50% 50%, #06b6d4, #8b5cf6, #ec4899, #3b82f6, #06b6d4);
+  mix-blend-mode: color-dodge;
+  opacity: 0.75;
+  filter: blur(14px);
+  animation: orbSpinPlasma 14s linear infinite;
+  z-index: 3;
+}
+
+.orb-layer-core {
+  background: radial-gradient(circle at 45% 45%, rgba(255, 255, 255, 0.95) 0%, rgba(167, 139, 250, 0.45) 30%, transparent 65%);
+  mix-blend-mode: overlay;
+  animation: orbCorePulse 4s ease-in-out infinite alternate;
+  z-index: 4;
+}
+
+.orb-glass-specular {
+  position: absolute;
+  top: 4%;
+  left: 12%;
+  width: 76%;
+  height: 48%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.15) 50%, transparent 75%);
+  opacity: 0.7;
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 5;
+  transform: rotate(-15deg);
+}
+
+.orb-rim-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3),
+              inset 0 -10px 25px rgba(6, 182, 212, 0.4);
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Animations for Orb Internal Motion */
+@keyframes orbFloat {
+  0% { transform: translateY(0px) scale(var(--orb-scale, 1)); }
+  100% { transform: translateY(-10px) scale(var(--orb-scale, 1)); }
+}
+
+@keyframes orbShiftPlasma1 {
+  0% { transform: translate(-10%, -10%) scale(1); }
+  50% { transform: translate(15%, 10%) scale(1.15); }
+  100% { transform: translate(-5%, 12%) scale(0.95); }
+}
+
+@keyframes orbSpinPlasma {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes orbCorePulse {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+@keyframes orbListeningPulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.18); }
+}
+
+@keyframes orbSpeakingPulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.22); }
+}
+
+@keyframes orbThinkingBreathe {
+  0% { filter: brightness(0.95); }
+  100% { filter: brightness(1.1); }
+}
+
+/* =========================================================
+   SIRI-INSPIRED VOICE WAVEFORM
+   ========================================================= */
+.siri-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 52px;
+  margin: 1.5rem 0 0.5rem;
+  padding: 0 1rem;
+}
+
+.siri-wave-bar {
+  width: 4px;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #67e8f9 0%, #818cf8 50%, #c084fc 100%);
+  opacity: 0.3;
+  transition: height 0.12s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease,
+              background 0.3s ease;
+  will-change: height;
+}
+
+.siri-waveform.active-listening .siri-wave-bar {
+  opacity: 0.95;
+  background: linear-gradient(180deg, #f87171 0%, #ec4899 50%, #a855f7 100%);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.siri-waveform.active-speaking .siri-wave-bar {
+  opacity: 0.95;
+  background: linear-gradient(180deg, #67e8f9 0%, #818cf8 50%, #c084fc 100%);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+}
+
+.siri-waveform.active-thinking .siri-wave-bar {
+  opacity: 0.7;
+  background: linear-gradient(180deg, #fde68a 0%, #f59e0b 60%, #8b5cf6 100%);
+}
+
+/* Status wrapper & dynamic subtext */
+.voice-status-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.voice-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.95rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.status-ready {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+}
+
+.status-listening {
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #fca5a5;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.45);
+  animation: pulseGlow 1.5s infinite;
+}
+
+.status-speaking {
+  background: rgba(99, 102, 241, 0.22);
+  border: 1px solid rgba(99, 102, 241, 0.55);
+  color: #c7d2fe;
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.45);
+  animation: pulseGlow 1.6s infinite;
+}
+
+.status-processing {
+  background: rgba(245, 158, 11, 0.22);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fde68a;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.status-captured {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #a7f3d0;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.voice-subtext {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease;
+  min-height: 26px;
+}
+
+/* =========================================================
+   FLOATING MICROPHONE CONTROL BUTTON
+   ========================================================= */
+.chamber-controls-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.mic-floating-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mic-button {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #ffffff;
+  font-size: 1.65rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 
+              0 0 20px rgba(99, 102, 241, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  position: relative;
+}
+
+.mic-button:hover {
+  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 40px rgba(99, 102, 241, 0.55);
+}
+
+.mic-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.6), 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.mic-button.recording {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.35) 0%, rgba(239, 68, 68, 0.55) 100%);
+  border-color: rgba(252, 165, 165, 0.7);
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.7), 0 0 70px rgba(239, 68, 68, 0.35);
+  animation: pulseGlow 1.2s infinite;
+}
+
+.rec-dot {
+  color: #ef4444;
+  font-size: 1rem;
+  margin-right: 2px;
+  animation: recDotBlink 1s infinite;
+}
+
+@keyframes recDotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.mic-hint-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+/* =========================================================
+   CANDIDATE TRANSCRIPT DRAWER & ACTIONS
+   ========================================================= */
+.transcript-drawer {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.transcript-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.transcript-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.transcript-textarea {
+  width: 100%;
+  background: rgba(10, 15, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 110px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  outline: none;
+}
+
+.transcript-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.chamber-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Accessibility: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .ai-orb,
+  .orb-ambient-aura,
+  .orb-layer-plasma-1,
+  .orb-layer-plasma-2,
+  .orb-layer-core,
+  .siri-wave-bar,
+  .bg-orb {
+    animation: none !important;
+    transition: opacity 0.3s ease !important;
+  }
+}
+
+/* Responsive Mobile & Tablet Adjustments */
+@media (max-width: 768px) {
+  .interview-chamber-card {
+    padding: 1.75rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .orb-wrapper {
+    width: 240px;
+    height: 240px;
+  }
+
+  .ai-orb {
+    width: 105px;
+    height: 105px;
+  }
+
+  .ai-orb.state-listening {
+    transform: scale(1.75); /* ~184px max on mobile to prevent overflow */
+  }
+
+  .ai-orb.state-speaking {
+    transform: scale(1.7); /* ~178px */
+  }
+
+  .ai-orb.state-thinking {
+    transform: scale(1.25); /* ~130px */
+  }
+
+  .siri-waveform {
+    gap: 3px;
+    height: 40px;
+  }
+
+  .siri-wave-bar {
+    width: 3px;
+  }
+
+  .ai-question-text {
+    font-size: 1.15rem;
+  }
+}

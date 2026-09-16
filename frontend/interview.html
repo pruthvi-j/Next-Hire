@@ -6,117 +6,6 @@
   <title>Mock Technical Interview - NextHire</title>
   <meta name="description" content="AI Technical Voice Mock Interview Chamber powered by MySQL Question Bank and Web Speech Recognition on NextHire.">
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* Voice Visualizer and Pulse Waves */
-    .audio-visualizer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      height: 44px;
-      margin: 1rem 0;
-    }
-    .wave-bar {
-      width: 5px;
-      background: #818cf8;
-      border-radius: 4px;
-      height: 10px;
-      transition: height 0.15s ease;
-    }
-    .wave-bar.speaking {
-      animation: wavePulse 1s ease-in-out infinite alternate;
-    }
-    .wave-bar.speaking:nth-child(2) { animation-delay: 0.15s; }
-    .wave-bar.speaking:nth-child(3) { animation-delay: 0.3s; }
-    .wave-bar.speaking:nth-child(4) { animation-delay: 0.1s; }
-    .wave-bar.speaking:nth-child(5) { animation-delay: 0.25s; }
-
-    .wave-bar.listening {
-      background: #ef4444;
-      animation: wavePulseRed 0.6s ease-in-out infinite alternate;
-    }
-    .wave-bar.listening:nth-child(2) { animation-delay: 0.1s; }
-    .wave-bar.listening:nth-child(3) { animation-delay: 0.2s; }
-    .wave-bar.listening:nth-child(4) { animation-delay: 0.3s; }
-    .wave-bar.listening:nth-child(5) { animation-delay: 0.15s; }
-
-    @keyframes wavePulse {
-      0% { height: 8px; }
-      100% { height: 38px; }
-    }
-    @keyframes wavePulseRed {
-      0% { height: 12px; }
-      100% { height: 42px; }
-    }
-
-    /* Voice Status Indicator Pill */
-    .voice-status-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.9rem;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      backdrop-filter: blur(8px);
-      transition: var(--transition);
-    }
-    .status-ready {
-      background: rgba(148, 163, 184, 0.15);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      color: #cbd5e1;
-    }
-    .status-listening {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-      color: #fca5a5;
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-      animation: pulseGlow 1.5s infinite;
-    }
-    .status-processing {
-      background: rgba(245, 158, 11, 0.2);
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      color: #fde68a;
-    }
-    .status-captured {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid rgba(16, 185, 129, 0.45);
-      color: #a7f3d0;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.04); }
-    }
-
-    .mic-button {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      color: #ffffff;
-      font-size: 1.6rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-      transition: var(--transition);
-      outline: none;
-    }
-    .mic-button:hover {
-      transform: scale(1.08);
-      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
-    }
-    .mic-button.recording {
-      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-      border-color: #fca5a5;
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.7);
-      animation: pulseGlow 1s infinite;
-    }
-  </style>
 </head>
 <body>
   <!-- Ambient Liquid Glass Orbs -->
@@ -231,135 +120,188 @@
     </div>
 
     <!-- =========================================================
-         SECTION B: ACTIVE VOICE INTERVIEW CHAMBER (Phases 5 & 6)
+         SECTION B: ACTIVE VOICE INTERVIEW CHAMBER (Siri Voice Interface)
          ========================================================= -->
-    <div id="chamber-section" style="display: none;">
+    <div id="chamber-section" style="display: none; max-width: 960px; margin: 1.5rem auto;">
       <!-- Chamber Top Meta Bar -->
-      <div class="glass-card" style="padding: 1.25rem 2rem; margin-bottom: 1.75rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <div class="logo-symbol" style="width: 38px; height: 38px; font-size: 1.1rem;">NH</div>
-            <div>
-              <h3 style="font-size: 1.25rem;">NextHire Mock Interview</h3>
-              <span id="chamber-role-title" style="font-size: 0.85rem; color: #67e8f9;">Full Stack Developer</span>
+      <div class="chamber-meta-bar">
+        <div class="chamber-meta-header">
+          <div class="chamber-meta-title-group">
+            <div class="logo-symbol" style="width: 40px; height: 40px; font-size: 1.15rem;">🎙️</div>
+            <div class="chamber-title-text">
+              <h2>Interview Chamber</h2>
+              <span class="chamber-subtitle">Voice Assistant: <strong style="color: #67e8f9;">JARVIS</strong> &bull; <span id="chamber-role-title">Full Stack Developer</span></span>
             </div>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="chamber-meta-pills">
             <span class="badge badge-primary" id="chamber-diff-badge">Medium</span>
-            <div style="text-align: right;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Session Progress</span>
-              <strong id="question-progress-text" style="font-size: 1.1rem; color: #ffffff;">Question 1 / 5</strong>
-            </div>
-            <button type="button" id="exit-interview-btn" class="btn btn-glass btn-sm" style="color: #fca5a5;">
+            <span class="badge badge-glass" id="question-progress-text" style="font-size: 0.9rem; font-weight: 600; padding: 0.4rem 0.85rem;">Question 1 / 5</span>
+            <button type="button" id="exit-interview-btn" class="btn btn-glass btn-sm" style="color: #fca5a5; border-color: rgba(239, 68, 68, 0.3);">
               Exit Session
             </button>
           </div>
         </div>
 
         <!-- Progress bar -->
-        <div style="margin-top: 1rem; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;">
-          <div id="session-progress-bar" style="width: 20%; height: 100%; background: linear-gradient(90deg, #6366f1, #06b6d4); transition: width 0.4s ease;"></div>
+        <div class="chamber-progress-container">
+          <div id="session-progress-bar" class="chamber-progress-fill" style="width: 20%;"></div>
         </div>
       </div>
 
-      <div class="grid-3">
-        <!-- AI Proctor / Voice Status Column (1 col) -->
-        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
-          <div>
-            <div style="width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 2.3rem; margin: 0.5rem auto 1rem; box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);">
-              🤖
-            </div>
-            <h3>NextHire Proctor</h3>
-            <span style="font-size: 0.8rem; color: #34d399;">● AI Voice System Active</span>
-
-            <!-- Audio Waveform Visualizer -->
-            <div class="audio-visualizer" id="audio-visualizer">
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-            </div>
-
-            <!-- Voice Status Badge -->
-            <div style="margin-top: 0.5rem;">
-              <span id="voice-status-pill" class="voice-status-indicator status-ready">
-                <span id="status-dot">⚪</span> <span id="status-label">Ready</span>
-              </span>
-            </div>
+      <!-- Main Chamber Hero Card (iOS Glassmorphism & Siri-Style Orb) -->
+      <div class="interview-chamber-card" id="chamber-hero-stage" data-voice-state="idle">
+        <!-- AI Interviewer Header & Badges -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div class="ai-speaker-badge">
+            <span class="ai-pulse-dot"></span>
+            <span>JARVIS &bull; AI Voice Assistant</span>
           </div>
 
-          <!-- Voice & Text Guide -->
-          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.8rem; text-align: left; color: var(--text-muted);">
-            <div style="margin-bottom: 0.35rem;">🔊 Click <strong>Listen</strong> to hear the question.</div>
-            <div style="margin-bottom: 0.35rem;">🎤 Click <strong>Start Answer</strong> to speak.</div>
-            <div>⌨️ You can also edit/type in the transcript box.</div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <span class="badge badge-primary" id="q-lang-badge">Python</span>
+            <span class="badge badge-warning" id="q-topic-badge">Basics</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);" id="q-code-label">ID: PL001</span>
+            <!-- Text-to-Speech Button -->
+            <button type="button" id="speak-question-btn" class="btn btn-glass btn-sm" style="padding: 0.3rem 0.8rem;" aria-label="Listen to JARVIS read question">
+              <span>🔊 Listen Question</span>
+            </button>
           </div>
         </div>
 
-        <!-- Question Prompt & Candidate Response Area (2 cols) -->
-        <div class="glass-card" style="grid-column: span 2; display: flex; flex-direction: column; justify-content: space-between;">
-          <div>
-            <!-- Question Metadata Badges -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <span class="badge badge-primary" id="q-lang-badge">Python</span>
-                <span class="badge badge-warning" id="q-topic-badge">Basics</span>
-                <span style="font-size: 0.8rem; color: var(--text-muted);" id="q-code-label">ID: PL001</span>
-              </div>
-              
-              <!-- Text-to-Speech Button -->
-              <button type="button" id="speak-question-btn" class="btn btn-glass btn-sm">
-                <span>🔊 Listen Question</span>
-              </button>
+        <!-- Glass Speech Bubble for JARVIS Voice Assistant -->
+        <div class="ai-speech-bubble">
+          <div class="ai-bubble-speaker" id="ai-bubble-speaker" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="ai-speaker-tag" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.3)); border: 1px solid rgba(99, 102, 241, 0.5); color: #67e8f9; font-weight: 700; font-size: 0.85rem; padding: 0.25rem 0.75rem; border-radius: 6px; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <span style="color: #38bdf8;">⚡</span> JARVIS:
+              </span>
+              <span id="ai-bubble-state-hint" style="font-size: 0.8rem; color: var(--text-muted);">Voice Interviewer</span>
             </div>
+            <span id="jarvis-status-badge" style="font-size: 0.75rem; color: #a5b4fc; background: rgba(99,102,241,0.12); padding: 0.2rem 0.6rem; border-radius: 12px; border: 1px solid rgba(99,102,241,0.25);">NextHire AI</span>
+          </div>
+          <h2 id="question-text-display" class="ai-question-text">
+            Loading question from MySQL database...
+          </h2>
+        </div>
 
-            <!-- Question Prompt Heading -->
-            <div style="padding: 1.25rem; background: rgba(255, 255, 255, 0.04); border-left: 4px solid #6366f1; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
-              <h2 id="question-text-display" style="font-size: 1.4rem; font-weight: 600; color: #ffffff; line-height: 1.4;">
-                Loading question from MySQL database...
-              </h2>
-            </div>
-
-            <!-- Microphone Controls & Status Bar -->
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-              <div style="display: flex; align-items: center; gap: 1rem;">
-                <button type="button" id="mic-toggle-btn" class="mic-button" title="Click to speak answer">
-                  🎤
-                </button>
-                <div>
-                  <strong style="color: #ffffff; display: block; font-size: 0.95rem;">Voice Response Channel</strong>
-                  <span id="mic-action-hint" style="font-size: 0.85rem; color: var(--text-muted);">Click microphone to begin speaking</span>
-                </div>
-              </div>
-
-              <!-- Permission / Fallback notification -->
-              <div id="mic-permission-notice" style="display: none; font-size: 0.8rem; color: #fca5a5; max-width: 280px;">
-                ⚠️ Microphone access unavailable. Please type your answer directly in the field below.
-              </div>
-            </div>
-
-            <!-- Answer Transcript Field (Speech-to-Text output + editable fallback) -->
-            <div class="form-group" style="margin-bottom: 1rem;">
-              <label class="form-label" for="answer-transcript">
-                Candidate Answer Transcript (Speech-to-Text / Typed)
-              </label>
-              <textarea 
-                id="answer-transcript" 
-                class="form-control no-icon" 
-                rows="5" 
-                placeholder="Click the microphone to speak, or type your answer directly here..."
-                style="resize: vertical; font-size: 0.95rem; line-height: 1.6;"
-              ></textarea>
+        <!-- THE HERO AI ORB STAGE -->
+        <div class="ai-orb-stage">
+          <div class="orb-wrapper">
+            <!-- Ambient Neon Glow Aura behind Orb -->
+            <div class="orb-ambient-aura aura-idle" id="orb-ambient-aura"></div>
+            
+            <!-- Animated Siri-Style AI Orb -->
+            <div class="ai-orb state-idle" id="ai-orb" title="JARVIS AI Voice Orb" tabindex="0" role="region" aria-label="JARVIS AI Voice Orb">
+              <div class="orb-layer orb-layer-base"></div>
+              <div class="orb-layer orb-layer-plasma-1"></div>
+              <div class="orb-layer orb-layer-plasma-2"></div>
+              <div class="orb-layer orb-layer-core"></div>
+              <div class="orb-glass-specular"></div>
+              <div class="orb-rim-glow"></div>
             </div>
           </div>
 
-          <!-- Bottom Action Buttons -->
-          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.25rem; margin-top: 1rem; flex-wrap: wrap; gap: 1rem;">
-            <button type="button" id="clear-transcript-btn" class="btn btn-glass btn-sm">
+          <!-- Siri-Inspired Voice Waveform -->
+          <div class="siri-waveform" id="siri-waveform" aria-hidden="true">
+            <!-- 24 Waveform Bars animated via CSS and AudioContext / procedural JS -->
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+            <div class="siri-wave-bar"></div>
+          </div>
+
+          <!-- Compatibility alias for existing scripts -->
+          <div class="audio-visualizer" id="audio-visualizer" style="display: none;">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+
+          <!-- Voice Status Indicator & Dynamic Subtext -->
+          <div class="voice-status-wrapper">
+            <span id="voice-status-pill" class="voice-status-indicator status-ready">
+              <span id="status-dot">⚪</span> <span id="status-label">Ready</span>
+            </span>
+            <div id="voice-subtext" class="voice-subtext">Ready when you are</div>
+          </div>
+        </div>
+
+        <!-- Floating Microphone Controls -->
+        <div class="chamber-controls-stage">
+          <!-- Ready Check Handshake Container -->
+          <div id="ready-handshake-box" style="display: none; margin: 0.5rem auto 1.5rem; text-align: center; max-width: 480px;">
+            <button type="button" id="confirm-ready-btn" class="btn btn-primary" style="padding: 0.85rem 2.2rem; font-size: 1.1rem; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); border-radius: 30px; font-weight: 600;">
+              <span>Yes, I'm ready &rarr;</span>
+            </button>
+            <div style="font-size: 0.85rem; color: #c7d2fe; margin-top: 0.6rem; font-weight: 500;">
+              🎙️ Say <em>"Yes, I'm ready"</em> or click the button above
+            </div>
+          </div>
+
+          <div class="mic-floating-container" id="mic-controls-box">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+              <button type="button" id="mic-toggle-btn" class="mic-button" title="Click to speak answer" aria-label="Toggle voice recording" aria-pressed="false">
+                <span id="mic-btn-icon">🎙</span>
+              </button>
+              <button type="button" id="done-speaking-btn" class="btn btn-glass btn-sm" style="display: none; border-color: rgba(52, 211, 153, 0.45); color: #a7f3d0; padding: 0.55rem 1.1rem; font-weight: 600; box-shadow: 0 0 15px rgba(52, 211, 153, 0.2);">
+                <span>✓ Done Speaking &rarr;</span>
+              </button>
+            </div>
+            <span id="mic-action-hint" class="mic-hint-text">JARVIS will speak the question, then listen for your answer</span>
+          </div>
+
+          <!-- Fallback / Permission Notice -->
+          <div id="mic-permission-notice" style="display: none; font-size: 0.85rem; color: #fca5a5; margin-top: 0.75rem; text-align: center;">
+            ⚠️ Microphone access unavailable. Please type your answer directly in the field below.
+          </div>
+        </div>
+
+        <!-- Candidate Transcript Drawer & Action Toolbar -->
+        <div class="transcript-drawer">
+          <div class="transcript-drawer-header">
+            <div class="transcript-drawer-title">
+              <span>✍️</span> Candidate Answer Transcript (Live Voice &amp; Edit)
+            </div>
+            <button type="button" id="clear-transcript-btn" class="btn btn-glass btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.8rem;">
               Clear Answer
             </button>
+          </div>
+
+          <textarea 
+            id="answer-transcript" 
+            class="transcript-textarea" 
+            rows="4" 
+            placeholder="Click the microphone to speak your answer, or type directly here..."
+            aria-label="Candidate response transcript"
+          ></textarea>
+
+          <div class="chamber-action-bar">
+            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem;">
+              <span>💡</span> Answers auto-save when navigating.
+            </div>
 
             <div style="display: flex; gap: 0.75rem;">
               <button type="button" id="submit-answer-btn" class="btn btn-glass">
@@ -383,7 +325,7 @@
       </div>
       <h2>Mock Interview Concluded!</h2>
       <p style="font-size: 1.05rem; color: var(--text-secondary); margin: 0.5rem auto 2rem; max-width: 500px;">
-        All questions have been completed and your voice transcripts have been securely stored in MySQL.
+        All questions have been completed. JARVIS has recorded your technical answers and NextHire is generating your evaluation scorecard.
       </p>
 
       <div class="grid-3" style="margin-bottom: 2rem;">
