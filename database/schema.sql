@@ -155,6 +155,7 @@ CREATE TABLE IF NOT EXISTS answers (
     feedback TEXT,
     strength TEXT,
     improvement TEXT,
+    status VARCHAR(50) DEFAULT 'answered',
     answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE,
     FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE,
@@ -173,6 +174,9 @@ CREATE TABLE IF NOT EXISTS interview_results (
     strengths TEXT,
     weaknesses TEXT,
     recommendations TEXT,
+    answered_count INT DEFAULT 0,
+    skipped_count INT DEFAULT 0,
+    answered_percentage FLOAT DEFAULT 100.0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE,
     INDEX idx_res_interview (interview_id)

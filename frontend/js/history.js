@@ -22,9 +22,14 @@ async function loadHistoryRecords() {
   const emptyNotice = document.getElementById('history-empty-notice');
 
   try {
-    const response = await fetch(`${API_BASE}/api/interviews/history`, {
+    const response = await fetch(`${API_BASE}/api/interviews/history?t=${Date.now()}`, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
 
     if (!response.ok) {
@@ -192,9 +197,14 @@ async function openInterviewModal(interviewId) {
   `;
 
   try {
-    const response = await fetch(`${API_BASE}/api/interview/${interviewId}/result`, {
+    const response = await fetch(`${API_BASE}/api/interview/${interviewId}/result?t=${Date.now()}`, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
 
     if (!response.ok) {

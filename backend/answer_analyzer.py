@@ -798,7 +798,7 @@ def _normalize_evaluation_dict(d, source):
     }
 
 
-def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=None):
+def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=None, status='answered'):
     """
     Evaluates an individual answer and saves the scores and feedback in the answers table.
     Now fetches expected_answer and key_concepts for concept-based evaluation.
@@ -832,17 +832,28 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
     expected_answer = q_data.get('expected_answer', '') if q_data else ''
     key_concepts = q_data.get('key_concepts', '') if q_data else ''
 
-    # Run AI / NLP Analysis with concept-based evaluation
-    eval_result = analyze_answer(
-        question_text=question_text,
-        answer_text=answer_text,
-        language=language,
-        topic=topic,
-        difficulty=difficulty,
-        role_name=role_name,
-        expected_answer=expected_answer,
-        key_concepts=key_concepts
-    )
+    # Run AI / NLP Analysis with concept-based evaluation if not skipped
+    if status == 'skipped':
+        eval_result = {
+            'technical_score': 0,
+            'communication_score': 0,
+            'quality_score': 0,
+            'confidence_score': 0,
+            'feedback': 'Question explicitly skipped by candidate.',
+            'strength': 'None',
+            'improvement': 'Review foundational concepts before attempting.'
+        }
+    else:
+        eval_result = analyze_answer(
+            question_text=question_text,
+            answer_text=answer_text,
+            language=language,
+            topic=topic,
+            difficulty=difficulty,
+            role_name=role_name,
+            expected_answer=expected_answer,
+            key_concepts=key_concepts
+        )
 
     # Save to answers table
     existing = fetch_one("SELECT id FROM answers WHERE interview_id = %s AND question_id = %s", (interview_id, question_id))
@@ -858,6 +869,7 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
                 feedback = %s,
                 strength = %s,
                 improvement = %s,
+                status = %s,
                 answered_at = CURRENT_TIMESTAMP
             WHERE id = %s
             """,
@@ -870,6 +882,7 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
                 eval_result['feedback'],
                 eval_result['strength'],
                 eval_result['improvement'],
+                status,
                 existing['id']
             )
         )
@@ -879,8 +892,8 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
             """
             INSERT INTO answers
             (interview_id, question_id, answer_text, technical_score, communication_score,
-             quality_score, confidence_score, feedback, strength, improvement)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+             quality_score, confidence_score, feedback, strength, improvement, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 interview_id,
@@ -892,7 +905,8 @@ def analyze_and_store_answer(interview_id, question_id, answer_text, user_id=Non
                 eval_result['confidence_score'],
                 eval_result['feedback'],
                 eval_result['strength'],
-                eval_result['improvement']
+                eval_result['improvement'],
+                status
             )
         )
 
@@ -1090,7 +1104,7 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
                q.topic, q.difficulty, q.question_text,
                q.expected_answer, q.key_concepts,
                a.id as answer_id, a.answer_text, a.technical_score, a.communication_score,
-               a.quality_score, a.confidence_score, a.feedback, a.strength, a.improvement
+               a.quality_score, a.confidence_score, a.feedback, a.strength, a.improvement, a.status
         FROM interview_questions iq
         JOIN questions q ON iq.question_id = q.id
         LEFT JOIN answers a ON a.interview_id = iq.interview_id AND a.question_id = q.id
@@ -1168,10 +1182,17 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
         analyzed_answers.append(item)
 
     # 4. Calculate Final Scores via documented formula
-    final_scores = calculate_final_scores(analyzed_answers)
+    # Filter out skipped answers from the final scoring calculation
+    scored_answers = [a for a in analyzed_answers if a.get('status') != 'skipped']
+    final_scores = calculate_final_scores(scored_answers)
 
     # 5. Synthesize Personalized Feedback
-    feedback_bundle = synthesize_personalized_feedback(analyzed_answers, role_name=role_name)
+    feedback_bundle = synthesize_personalized_feedback(scored_answers, role_name=role_name)
+    
+    answered_count = len(scored_answers)
+    skipped_count = len(analyzed_answers) - answered_count
+    total_q = len(analyzed_answers)
+    answered_percentage = round((answered_count / total_q) * 100, 1) if total_q > 0 else 0.0
 
     # Convert list to JSON strings for database storage
     strengths_json = json.dumps(feedback_bundle['strengths'])
@@ -1192,6 +1213,9 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
                 strengths = %s,
                 weaknesses = %s,
                 recommendations = %s,
+                answered_count = %s,
+                skipped_count = %s,
+                answered_percentage = %s,
                 created_at = CURRENT_TIMESTAMP
             WHERE id = %s
             """,
@@ -1204,6 +1228,9 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
                 strengths_json,
                 weaknesses_json,
                 recs_json,
+                answered_count,
+                skipped_count,
+                answered_percentage,
                 existing['id']
             )
         )
@@ -1213,8 +1240,9 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
             """
             INSERT INTO interview_results
             (interview_id, overall_score, technical_score, communication_score,
-             quality_score, confidence_score, strengths, weaknesses, recommendations)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+             quality_score, confidence_score, strengths, weaknesses, recommendations,
+             answered_count, skipped_count, answered_percentage)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 interview_id,
@@ -1225,7 +1253,10 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
                 final_scores['confidence_score'],
                 strengths_json,
                 weaknesses_json,
-                recs_json
+                recs_json,
+                answered_count,
+                skipped_count,
+                answered_percentage
             )
         )
 
@@ -1244,6 +1275,9 @@ def generate_interview_result(interview_id, user_id=None, force_recompute=False)
         'strengths': strengths_json,
         'weaknesses': weaknesses_json,
         'recommendations': recs_json,
+        'answered_count': answered_count,
+        'skipped_count': skipped_count,
+        'answered_percentage': answered_percentage,
         'created_at': 'Just now'
     }
 
@@ -1257,7 +1291,7 @@ def _fetch_detailed_interview_answers(interview_id):
         SELECT iq.question_order, q.id as question_id, q.question_code, q.language,
                q.topic, q.difficulty, q.question_text,
                a.id as answer_id, a.answer_text, a.technical_score, a.communication_score,
-               a.quality_score, a.confidence_score, a.feedback, a.strength, a.improvement
+               a.quality_score, a.confidence_score, a.feedback, a.strength, a.improvement, a.status
         FROM interview_questions iq
         JOIN questions q ON iq.question_id = q.id
         LEFT JOIN answers a ON a.interview_id = iq.interview_id AND a.question_id = q.id
@@ -1300,7 +1334,9 @@ def _format_result_payload(interview, res_record, detailed_answers):
         'role_name': interview.get('role_name', 'Software Engineer'),
         'difficulty': interview.get('difficulty', 'Medium'),
         'total_questions': interview.get('total_questions', len(detailed_answers)),
-        'answered_count': sum(1 for a in detailed_answers if a.get('answer_text')),
+        'answered_count': res_record.get('answered_count', sum(1 for a in detailed_answers if a.get('status') != 'skipped' and a.get('answer_text'))),
+        'skipped_count': res_record.get('skipped_count', sum(1 for a in detailed_answers if a.get('status') == 'skipped')),
+        'answered_percentage': res_record.get('answered_percentage', 100.0),
         'status': interview.get('status', 'completed'),
         'overall_score': overall,
         'scores': {
@@ -1345,6 +1381,7 @@ def _format_result_payload(interview, res_record, detailed_answers):
                 'difficulty': a.get('difficulty', 'Medium'),
                 'question_text': a.get('question_text', ''),
                 'answer_text': a.get('answer_text') or '(No answer provided)',
+                'status': a.get('status') or 'answered',
                 'scores': {
                     'technical': a.get('technical_score') or 1,
                     'communication': a.get('communication_score') or 1,

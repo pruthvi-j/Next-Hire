@@ -111,16 +111,22 @@ function setVoiceState(state, customMessage = null) {
 
   // Update Orb classes
   if (orb) {
-    orb.classList.remove('state-idle', 'state-listening', 'state-thinking', 'state-speaking');
+    orb.classList.remove('state-idle', 'state-listening', 'state-thinking', 'state-analyzing', 'state-speaking');
     orb.classList.add(`state-${state}`);
-    orb.style.setProperty('--orb-scale', '1');
+    orb.style.removeProperty('--orb-scale');
   }
 
   // Update Ambient Aura
   if (aura) {
-    aura.classList.remove('aura-idle', 'aura-listening', 'aura-thinking', 'aura-speaking');
+    aura.classList.remove('aura-idle', 'aura-listening', 'aura-thinking', 'aura-analyzing', 'aura-speaking');
     aura.classList.add(`aura-${state}`);
   }
+
+  // Sync state switcher buttons if present
+  const stateBtns = document.querySelectorAll('.orb-state-btn');
+  stateBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.state === state);
+  });
 
   // Update Waveform container mode
   if (waveform) {
@@ -210,6 +216,61 @@ function setVoiceState(state, customMessage = null) {
       setWaveAnimation('off');
       break;
   }
+  
+  // UI Panel Management for Cinematic Chat
+  const activeUserTurn = document.getElementById('active-user-turn');
+  const activeJarvisTurn = document.getElementById('active-jarvis-turn');
+  const analyzingIndicator = document.getElementById('analyzing-indicator');
+
+  if (activeJarvisTurn) activeJarvisTurn.style.display = 'flex';
+  
+  if (state === VoiceState.LISTENING || state === VoiceState.THINKING || state === VoiceState.IDLE && hasAnswer) {
+      if (activeUserTurn) activeUserTurn.style.display = 'flex';
+  }
+  
+  if (state === VoiceState.THINKING) {
+      if (analyzingIndicator) analyzingIndicator.style.display = 'block';
+  } else {
+      if (analyzingIndicator) analyzingIndicator.style.display = 'none';
+  }
+
+  // Hook for 3D JARVIS
+  if (window.Jarvis3D) {
+      window.Jarvis3D.setState(state);
+  }
+}
+
+function archiveCurrentTurn() {
+  const historyContainer = document.getElementById('chat-history-container');
+  const liveUserTranscript = document.getElementById('live-user-transcript');
+  const liveJarvisResponse = document.getElementById('live-jarvis-response');
+  
+  if (!historyContainer) return;
+
+  const jText = liveJarvisResponse ? liveJarvisResponse.textContent.trim() : '';
+  const uText = liveUserTranscript ? liveUserTranscript.textContent.trim() : '';
+
+  if (jText || uText) {
+    const group = document.createElement('div');
+    group.className = 'chat-message-group';
+    group.style.marginBottom = '1rem';
+
+    if (jText) {
+      group.innerHTML += `<div class="jarvis-turn chat-message-group" style="margin-bottom:0.5rem;"><span class="chat-label">JARVIS</span><p class="chat-text">${jText}</p></div>`;
+    }
+    if (uText) {
+      group.innerHTML += `<div class="user-turn chat-message-group"><span class="chat-label">YOU</span><p class="chat-text">${uText}</p></div>`;
+    }
+    
+    historyContainer.appendChild(group);
+    historyContainer.scrollTop = historyContainer.scrollHeight;
+  }
+
+  if (liveJarvisResponse) liveJarvisResponse.innerHTML = '';
+  if (liveUserTranscript) liveUserTranscript.innerHTML = '';
+  
+  const activeUserTurn = document.getElementById('active-user-turn');
+  if (activeUserTurn) activeUserTurn.style.display = 'none';
 }
 
 /**
@@ -243,6 +304,48 @@ function speakJarvis(text, onComplete = null) {
 
   isSpeaking = true;
   setVoiceState(VoiceState.SPEAKING, 'JARVIS is speaking...');
+  
+  archiveCurrentTurn();
+  
+  const liveResponse = document.getElementById('live-jarvis-response');
+  const jarvisCursor = document.getElementById('jarvis-cursor');
+  
+  if (liveResponse) liveResponse.innerHTML = '';
+  if (jarvisCursor) jarvisCursor.style.display = 'inline';
+  
+  let fallbackTimer = null;
+  
+  // Word boundary event for progressive text display
+  activeUtterance.onboundary = (event) => {
+    if (event.name === 'word') {
+       if (liveResponse) {
+          const currentText = text.substring(0, event.charIndex + event.charLength);
+          liveResponse.innerHTML = currentText;
+       }
+    }
+  };
+
+  activeUtterance.onstart = () => {
+    console.log('[JARVIS TTS] Speech started');
+    // Fallback animation if onboundary isn't firing
+    if (liveResponse && liveResponse.innerHTML === '') {
+        const words = text.split(' ');
+        let wIdx = 0;
+        const speed = Math.max(300, (text.length / 15) * 100); 
+        fallbackTimer = setInterval(() => {
+           if (!isSpeaking) {
+               clearInterval(fallbackTimer);
+               return;
+           }
+           if (wIdx < words.length) {
+               liveResponse.innerHTML = words.slice(0, wIdx + 1).join(' ');
+               wIdx++;
+           } else {
+               clearInterval(fallbackTimer);
+           }
+        }, speed / words.length);
+    }
+  };
 
   // Chrome keepalive: Prevents Chrome TTS engine from stalling on long sentences
   speechKeepAliveInterval = setInterval(() => {
@@ -259,9 +362,13 @@ function speakJarvis(text, onComplete = null) {
 
   activeUtterance.onend = () => {
     clearInterval(speechKeepAliveInterval);
+    if (fallbackTimer) clearInterval(fallbackTimer);
     console.log('[JARVIS TTS] Speech ended');
     isSpeaking = false;
     activeUtterance = null;
+    
+    if (liveResponse) liveResponse.innerHTML = text;
+    if (jarvisCursor) jarvisCursor.style.display = 'none';
 
     if (onComplete) {
       // Natural brief conversational beat before opening candidate microphone
@@ -273,9 +380,12 @@ function speakJarvis(text, onComplete = null) {
 
   activeUtterance.onerror = (event) => {
     clearInterval(speechKeepAliveInterval);
+    if (fallbackTimer) clearInterval(fallbackTimer);
     console.warn('[JARVIS TTS] Speech error or canceled:', event.error);
     isSpeaking = false;
     activeUtterance = null;
+    if (liveResponse) liveResponse.innerHTML = text;
+    if (jarvisCursor) jarvisCursor.style.display = 'none';
     if (onComplete) onComplete();
   };
 
@@ -347,11 +457,21 @@ function initSpeechRecognition() {
       }
 
       const transcriptBox = document.getElementById('answer-transcript');
-      if (transcriptBox && !isGreetingReadyCheck) {
-        if (finalTranscript) {
+      const liveUserTranscript = document.getElementById('live-user-transcript');
+
+      if (!isGreetingReadyCheck) {
+        if (finalTranscript && transcriptBox) {
           transcriptBox.value = (transcriptBox.value + ' ' + finalTranscript).trim();
           console.log(`[JARVIS ANSWER] Transcript received: "${finalTranscript.trim()}"`);
         }
+      }
+
+      if (liveUserTranscript) {
+         let currentFinal = transcriptBox ? transcriptBox.value : '';
+         if (isGreetingReadyCheck) {
+             currentFinal = finalTranscript;
+         }
+         liveUserTranscript.textContent = (currentFinal + ' ' + interimTranscript).trim();
       }
 
       // Conversational Silence Detection:
@@ -627,14 +747,10 @@ function stopAudioAnalyser() {
 }
 
 /**
- * Siri-Style Waveform Visualizer loop
- * Updates 24 waveform bars smoothly using real frequency data or procedural harmonics
+ * Voice-Reactive Orb Animation loop
+ * Updates the JARVIS orb scale smoothly using real frequency data from the microphone
  */
 function initWaveformVisualizer() {
-  const bars = document.querySelectorAll('.siri-wave-bar');
-  if (!bars || bars.length === 0) return;
-
-  const totalBars = bars.length;
   const dataArray = new Uint8Array(32);
 
   function renderWaveform(time) {
@@ -643,59 +759,36 @@ function initWaveformVisualizer() {
       if (analyserNode) {
         analyserNode.getByteFrequencyData(dataArray);
         let sum = 0;
+        // Average the lower frequency bins which carry most of the human voice energy
         for (let i = 0; i < 16; i++) sum += dataArray[i];
         freqEnergy = sum / 16; // 0 to 255
       }
 
-      const normEnergy = freqEnergy > 0 ? freqEnergy / 255 : 0.4;
-      currentVolume += (normEnergy - currentVolume) * 0.2;
+      // Noise gate: ignore very low amplitude (e.g. background noise)
+      const normEnergy = freqEnergy > 15 ? freqEnergy / 255 : 0;
+      
+      // Smooth interpolation for fluid organic movement
+      currentVolume += (normEnergy - currentVolume) * 0.12;
 
-      // Update Orb gentle volume reactive pulse while candidate speaks
+      // Update Orb scale dynamically
       const orb = document.getElementById('ai-orb');
-      if (orb && currentVolume > 0.08) {
-        orb.style.setProperty('--orb-scale', (1.0 + Math.min(currentVolume * 0.12, 0.15)).toFixed(3));
+      if (orb) {
+        // Base scale 1.00. Max scale offset 0.07 (loud).
+        const scaleOffset = currentVolume * 0.08;
+        const finalScale = 1.00 + Math.min(scaleOffset, 0.07);
+        orb.style.setProperty('--orb-scale', finalScale.toFixed(3));
       }
-
-      bars.forEach((bar, index) => {
-        const distFromCenter = Math.abs(index - (totalBars / 2)) / (totalBars / 2);
-        const bellFactor = Math.max(0.2, 1 - Math.pow(distFromCenter, 1.4));
-
-        let height = 6;
-        if (analyserNode && freqEnergy > 10) {
-          const binIndex = Math.floor((index / totalBars) * 16);
-          const binVal = (dataArray[binIndex] || 0) / 255;
-          height = Math.round(6 + binVal * 42 * bellFactor);
-        } else {
-          // Organic procedural wave fallback
-          const wave = Math.sin(time * 0.008 + index * 0.45) * 0.5 + 0.5;
-          height = Math.round(6 + wave * 36 * bellFactor);
-        }
-        bar.style.height = `${Math.min(height, 50)}px`;
-      });
-    } else if (currentVoiceState === VoiceState.SPEAKING) {
-      // NextHire AI Speaking Waveform: smooth harmonious rhythmic propagation
-      bars.forEach((bar, index) => {
-        const distFromCenter = Math.abs(index - (totalBars / 2)) / (totalBars / 2);
-        const bellFactor = Math.max(0.25, 1 - Math.pow(distFromCenter, 1.2));
-        const wave = Math.sin(time * 0.009 + index * 0.38) * 0.5 + 0.5;
-        const wave2 = Math.cos(time * 0.006 + index * 0.2) * 0.5 + 0.5;
-        const combined = (wave + wave2) / 2;
-        const height = Math.round(5 + combined * 38 * bellFactor);
-        bar.style.height = `${height}px`;
-      });
-    } else if (currentVoiceState === VoiceState.THINKING) {
-      // Soft breathing low amplitude wave
-      bars.forEach((bar, index) => {
-        const breath = Math.sin(time * 0.004 + index * 0.25) * 0.5 + 0.5;
-        const height = Math.round(4 + breath * 12);
-        bar.style.height = `${height}px`;
-      });
     } else {
-      // IDLE baseline
-      bars.forEach((bar, index) => {
-        const subtleTick = Math.sin(time * 0.002 + index * 0.3) * 1.5;
-        bar.style.height = `${Math.max(3, 4 + subtleTick)}px`;
-      });
+      // When not listening, slowly ease currentVolume back to 0
+      if (currentVolume > 0.01) {
+        currentVolume += (0 - currentVolume) * 0.1;
+      } else {
+        currentVolume = 0;
+      }
+    }
+    
+    if (window.Jarvis3D) {
+      window.Jarvis3D.updateVolume(currentVolume);
     }
 
     visualizerFrameId = requestAnimationFrame(renderWaveform);
@@ -1016,7 +1109,7 @@ function renderCurrentQuestion(transitionDisplay = null, spokenTransition = null
 /**
  * Saves candidate answer for the current question via POST /api/interview/<id>/answer
  */
-async function saveCurrentAnswer(silent = false) {
+async function saveCurrentAnswer(silent = false, status = 'answered') {
   if (!activeInterview) return false;
 
   const current = activeInterview.questions[currentQuestionIndex];
@@ -1035,13 +1128,15 @@ async function saveCurrentAnswer(silent = false) {
       },
       body: JSON.stringify({
         question_id: current.id || current.question_id,
-        answer_text: answerText
+        answer_text: answerText,
+        status: status
       })
     });
 
     const result = await response.json();
     if (response.ok && result.status === 'success') {
       current.answer_text = answerText;
+      current.status = status;
       if (!silent) {
         showToast('Answer successfully stored in database.', 'success');
       }
@@ -1069,6 +1164,32 @@ async function handleNextQuestion() {
 }
 
 /**
+ * Skips the current question
+ */
+async function handleSkipQuestion() {
+  if (isEvaluating) return;
+  isEvaluating = true;
+  if (silenceTimer) clearTimeout(silenceTimer);
+  stopVoiceListening(false);
+  setVoiceState(VoiceState.THINKING, 'JARVIS is skipping question...');
+  
+  await saveCurrentAnswer(true, 'skipped');
+  
+  const total = activeInterview ? activeInterview.questions.length : 0;
+  if (currentQuestionIndex < total - 1) {
+    currentQuestionIndex++;
+    isEvaluating = false;
+    renderCurrentQuestion("JARVIS: Question skipped. Let's move to the next one.", "Question skipped. Let's move to the next one.");
+  } else {
+    isEvaluating = false;
+    const finalFarewell = `Thank you ${candidateName}. You have completed all questions in your technical interview. JARVIS and NextHire are now generating your multi-dimensional evaluation scorecard.`;
+    speakJarvis(finalFarewell, () => {
+      completeInterviewSession();
+    });
+  }
+}
+
+/**
  * Finalizes the interview via POST /api/interview/<id>/complete
  */
 async function completeInterviewSession() {
@@ -1091,8 +1212,20 @@ async function completeInterviewSession() {
   document.getElementById('chamber-section').style.display = 'none';
   const completedSection = document.getElementById('completed-section');
   if (completedSection) {
-    document.getElementById('completed-total-q').textContent = `${activeInterview.questions.length} / ${activeInterview.questions.length}`;
+    let answered = 0;
+    activeInterview.questions.forEach(q => {
+      if (q.status !== 'skipped' && q.answer_text && q.answer_text.trim() !== '') {
+        answered++;
+      }
+    });
+    const total = activeInterview.questions.length;
+    let pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+    
+    document.getElementById('completed-total-q').textContent = `${answered} / ${total}`;
     document.getElementById('completed-role-name').textContent = activeInterview.role_name;
+    const pctLabel = document.getElementById('completed-answers-percentage');
+    if (pctLabel) pctLabel.textContent = `${pct}%`;
+    
     const viewResLink = document.getElementById('view-results-link');
     if (viewResLink && activeInterview) {
       viewResLink.href = `result.html?id=${activeInterview.interview_id}`;
@@ -1165,10 +1298,29 @@ function bindEvents() {
     aiOrb.addEventListener('click', toggleVoiceRecording);
   }
 
+  // Interactive Orb State Preview Switcher for testing all 4 JARVIS states
+  const stateBtns = document.querySelectorAll('.orb-state-btn');
+  stateBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetState = btn.dataset.state;
+      if (targetState === 'idle') setVoiceState(VoiceState.IDLE, 'JARVIS is ready when you are');
+      else if (targetState === 'speaking') setVoiceState(VoiceState.SPEAKING, 'JARVIS is speaking...');
+      else if (targetState === 'listening') setVoiceState(VoiceState.LISTENING, 'JARVIS is listening...');
+      else if (targetState === 'thinking' || targetState === 'analyzing') setVoiceState(VoiceState.THINKING, 'JARVIS is analyzing your answer...');
+    });
+  });
+
   // Save answer button
   const saveBtn = document.getElementById('submit-answer-btn');
   if (saveBtn) {
     saveBtn.addEventListener('click', () => saveCurrentAnswer(false));
+  }
+
+  // Skip question button
+  const skipBtn = document.getElementById('skip-question-btn');
+  if (skipBtn) {
+    skipBtn.addEventListener('click', handleSkipQuestion);
   }
 
   // Next question button

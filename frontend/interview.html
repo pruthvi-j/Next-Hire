@@ -6,6 +6,8 @@
   <title>Mock Technical Interview - NextHire</title>
   <meta name="description" content="AI Technical Voice Mock Interview Chamber powered by MySQL Question Bank and Web Speech Recognition on NextHire.">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
   <!-- Ambient Liquid Glass Orbs -->
@@ -150,167 +152,81 @@
       </div>
 
       <!-- Main Chamber Hero Card (iOS Glassmorphism & Siri-Style Orb) -->
-      <div class="interview-chamber-card" id="chamber-hero-stage" data-voice-state="idle">
-        <!-- AI Interviewer Header & Badges -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <div class="ai-speaker-badge">
-            <span class="ai-pulse-dot"></span>
-            <span>JARVIS &bull; AI Voice Assistant</span>
-          </div>
-
-          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <span class="badge badge-primary" id="q-lang-badge">Python</span>
-            <span class="badge badge-warning" id="q-topic-badge">Basics</span>
-            <span style="font-size: 0.8rem; color: var(--text-muted);" id="q-code-label">ID: PL001</span>
-            <!-- Text-to-Speech Button -->
-            <button type="button" id="speak-question-btn" class="btn btn-glass btn-sm" style="padding: 0.3rem 0.8rem;" aria-label="Listen to JARVIS read question">
-              <span>🔊 Listen Question</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Glass Speech Bubble for JARVIS Voice Assistant -->
-        <div class="ai-speech-bubble">
-          <div class="ai-bubble-speaker" id="ai-bubble-speaker" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="ai-speaker-tag" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(6, 182, 212, 0.3)); border: 1px solid rgba(99, 102, 241, 0.5); color: #67e8f9; font-weight: 700; font-size: 0.85rem; padding: 0.25rem 0.75rem; border-radius: 6px; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 0.4rem;">
-                <span style="color: #38bdf8;">⚡</span> JARVIS:
-              </span>
-              <span id="ai-bubble-state-hint" style="font-size: 0.8rem; color: var(--text-muted);">Voice Interviewer</span>
+      <div class="interview-chamber-card cinematic-chamber" id="chamber-hero-stage" data-voice-state="idle">
+        
+        <div class="chamber-layout-grid">
+          <!-- LEFT: Liquid Glass Question Panel -->
+          <div class="glass-chat-panel panel-left" id="chat-panel-left">
+            <div id="chat-history-container" class="chat-history-container">
+              <!-- Previous conversation turns will be appended here -->
             </div>
-            <span id="jarvis-status-badge" style="font-size: 0.75rem; color: #a5b4fc; background: rgba(99,102,241,0.12); padding: 0.2rem 0.6rem; border-radius: 12px; border: 1px solid rgba(99,102,241,0.25);">NextHire AI</span>
-          </div>
-          <h2 id="question-text-display" class="ai-question-text">
-            Loading question from MySQL database...
-          </h2>
-        </div>
-
-        <!-- THE HERO AI ORB STAGE -->
-        <div class="ai-orb-stage">
-          <div class="orb-wrapper">
-            <!-- Ambient Neon Glow Aura behind Orb -->
-            <div class="orb-ambient-aura aura-idle" id="orb-ambient-aura"></div>
             
-            <!-- Animated Siri-Style AI Orb -->
-            <div class="ai-orb state-idle" id="ai-orb" title="JARVIS AI Voice Orb" tabindex="0" role="region" aria-label="JARVIS AI Voice Orb">
-              <div class="orb-layer orb-layer-base"></div>
-              <div class="orb-layer orb-layer-plasma-1"></div>
-              <div class="orb-layer orb-layer-plasma-2"></div>
-              <div class="orb-layer orb-layer-core"></div>
-              <div class="orb-glass-specular"></div>
-              <div class="orb-rim-glow"></div>
+            <div class="chat-active-turn">
+              <div class="chat-message-group user-turn" id="active-user-turn" style="display: none;">
+                <span class="chat-label">YOU / QUESTION</span>
+                <p class="chat-text" id="live-user-transcript"></p>
+              </div>
             </div>
           </div>
 
-          <!-- Siri-Inspired Voice Waveform -->
-          <div class="siri-waveform" id="siri-waveform" aria-hidden="true">
-            <!-- 24 Waveform Bars animated via CSS and AudioContext / procedural JS -->
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
-            <div class="siri-wave-bar"></div>
+          <!-- RIGHT: Liquid Glass Response Panel -->
+          <div class="glass-chat-panel panel-right" id="chat-panel-right">
+            <div class="chat-active-turn">
+              <div class="chat-message-group jarvis-turn" id="active-jarvis-turn" style="display: none;">
+                <span class="chat-label">JARVIS</span>
+                <p class="chat-text">
+                  <span id="live-jarvis-response"></span><span id="jarvis-cursor" class="jarvis-cursor" style="display: none;">▌</span>
+                </p>
+              </div>
+              <!-- Analyzing State -->
+              <div class="chat-analyzing-indicator" id="analyzing-indicator" style="display: none;">
+                Analyzing your response...
+              </div>
+            </div>
           </div>
-
-          <!-- Compatibility alias for existing scripts -->
-          <div class="audio-visualizer" id="audio-visualizer" style="display: none;">
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-          </div>
-
-          <!-- Voice Status Indicator & Dynamic Subtext -->
-          <div class="voice-status-wrapper">
-            <span id="voice-status-pill" class="voice-status-indicator status-ready">
-              <span id="status-dot">⚪</span> <span id="status-label">Ready</span>
-            </span>
-            <div id="voice-subtext" class="voice-subtext">Ready when you are</div>
-          </div>
+          
+          <!-- BOTTOM-LEFT: 3D JARVIS Canvas Container -->
+          <div id="jarvis-3d-container"></div>
         </div>
 
-        <!-- Floating Microphone Controls -->
-        <div class="chamber-controls-stage">
-          <!-- Ready Check Handshake Container -->
-          <div id="ready-handshake-box" style="display: none; margin: 0.5rem auto 1.5rem; text-align: center; max-width: 480px;">
-            <button type="button" id="confirm-ready-btn" class="btn btn-primary" style="padding: 0.85rem 2.2rem; font-size: 1.1rem; box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); border-radius: 30px; font-weight: 600;">
-              <span>Yes, I'm ready &rarr;</span>
-            </button>
-            <div style="font-size: 0.85rem; color: #c7d2fe; margin-top: 0.6rem; font-weight: 500;">
-              🎙️ Say <em>"Yes, I'm ready"</em> or click the button above
-            </div>
+        <!-- Hidden elements for preserving existing logic while keeping UI clean -->
+        <div style="display: none;">
+          <!-- Legacy text elements referenced by interview.js -->
+          <h2 id="question-text-display"></h2>
+          <textarea id="answer-transcript"></textarea>
+          
+          <!-- Legacy UI controls / hints -->
+          <div id="ready-handshake-box">
+            <button id="confirm-ready-btn"></button>
           </div>
-
-          <div class="mic-floating-container" id="mic-controls-box">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-              <button type="button" id="mic-toggle-btn" class="mic-button" title="Click to speak answer" aria-label="Toggle voice recording" aria-pressed="false">
-                <span id="mic-btn-icon">🎙</span>
-              </button>
-              <button type="button" id="done-speaking-btn" class="btn btn-glass btn-sm" style="display: none; border-color: rgba(52, 211, 153, 0.45); color: #a7f3d0; padding: 0.55rem 1.1rem; font-weight: 600; box-shadow: 0 0 15px rgba(52, 211, 153, 0.2);">
-                <span>✓ Done Speaking &rarr;</span>
-              </button>
-            </div>
-            <span id="mic-action-hint" class="mic-hint-text">JARVIS will speak the question, then listen for your answer</span>
+          <div id="mic-controls-box">
+            <button id="mic-toggle-btn"></button>
+            <button id="done-speaking-btn"></button>
+            <span id="mic-action-hint"></span>
           </div>
-
-          <!-- Fallback / Permission Notice -->
-          <div id="mic-permission-notice" style="display: none; font-size: 0.85rem; color: #fca5a5; margin-top: 0.75rem; text-align: center;">
-            ⚠️ Microphone access unavailable. Please type your answer directly in the field below.
-          </div>
-        </div>
-
-        <!-- Candidate Transcript Drawer & Action Toolbar -->
-        <div class="transcript-drawer">
-          <div class="transcript-drawer-header">
-            <div class="transcript-drawer-title">
-              <span>✍️</span> Candidate Answer Transcript (Live Voice &amp; Edit)
-            </div>
-            <button type="button" id="clear-transcript-btn" class="btn btn-glass btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.8rem;">
-              Clear Answer
-            </button>
-          </div>
-
-          <textarea 
-            id="answer-transcript" 
-            class="transcript-textarea" 
-            rows="4" 
-            placeholder="Click the microphone to speak your answer, or type directly here..."
-            aria-label="Candidate response transcript"
-          ></textarea>
-
-          <div class="chamber-action-bar">
-            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem;">
-              <span>💡</span> Answers auto-save when navigating.
-            </div>
-
-            <div style="display: flex; gap: 0.75rem;">
-              <button type="button" id="submit-answer-btn" class="btn btn-glass">
-                <span>Save Answer</span>
-              </button>
-              <button type="button" id="next-question-btn" class="btn btn-primary">
-                <span>Next Question &rarr;</span>
-              </button>
-            </div>
+          <div id="mic-permission-notice"></div>
+          
+          <!-- Other legacy elements -->
+          <span id="ai-bubble-state-hint"></span>
+          <span id="q-lang-badge"></span>
+          <span id="q-topic-badge"></span>
+          <span id="q-code-label"></span>
+          <button id="speak-question-btn"></button>
+          <button id="clear-transcript-btn"></button>
+          <button id="skip-question-btn"></button>
+          <button id="submit-answer-btn"></button>
+          <button id="next-question-btn"></button>
+          
+          <span id="voice-status-pill">
+            <span id="status-dot"></span> <span id="status-label"></span>
+          </span>
+          <div id="voice-subtext"></div>
+          
+          <div id="orb-state-switcher">
+            <button class="orb-state-btn" data-state="idle"></button>
+            <button class="orb-state-btn" data-state="speaking"></button>
+            <button class="orb-state-btn" data-state="listening"></button>
+            <button class="orb-state-btn" data-state="thinking"></button>
           </div>
         </div>
       </div>
@@ -339,7 +255,7 @@
         </div>
         <div class="entity-box">
           <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Answers Stored</span>
-          <strong style="font-size: 1.8rem; color: #34d399;">100%</strong>
+          <strong id="completed-answers-percentage" style="font-size: 1.8rem; color: #34d399;">100%</strong>
         </div>
       </div>
 
@@ -371,6 +287,7 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script src="js/jarvis3d.js"></script>
   <script src="js/interview.js"></script>
 </body>
 </html>

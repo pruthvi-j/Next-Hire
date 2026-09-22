@@ -1081,243 +1081,343 @@ a:hover {
 }
 
 /* =========================================================
-   THE HERO AI ORB - SIRI-INSPIRED VOICE CORE
+   THE HERO AI ORB - GLOWING LIQUID-GLASS ENERGY SPHERE
    ========================================================= */
 .ai-orb-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 0 1.75rem;
+  padding: 1.25rem 0 1.5rem;
   position: relative;
   width: 100%;
 }
 
-.orb-wrapper {
+.jarvis-container {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 380px;
+  height: 380px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Ambient Neon Glow Aura behind the Orb */
-.orb-ambient-aura {
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  filter: blur(55px);
-  pointer-events: none;
-  opacity: 0.45;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, rgba(6, 182, 212, 0.3) 45%, rgba(139, 92, 246, 0.2) 75%, transparent 100%);
-  transition: transform 0.65s cubic-bezier(0.25, 1, 0.3, 1), 
-              opacity 0.65s ease, 
-              background 0.65s ease;
-  z-index: 0;
-}
-
-.orb-ambient-aura.aura-listening {
-  opacity: 0.85;
-  transform: scale(1.4);
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(217, 70, 239, 0.45) 45%, rgba(6, 182, 212, 0.35) 75%, transparent 100%);
-}
-
-.orb-ambient-aura.aura-speaking {
-  opacity: 0.85;
-  transform: scale(1.35);
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.65) 0%, rgba(168, 85, 247, 0.55) 45%, rgba(6, 182, 212, 0.35) 75%, transparent 100%);
-}
-
-.orb-ambient-aura.aura-thinking {
-  opacity: 0.65;
-  transform: scale(1.15);
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.5) 0%, rgba(139, 92, 246, 0.4) 50%, transparent 80%);
-}
-
-.orb-ambient-aura.aura-idle {
-  opacity: 0.45;
-  transform: scale(1);
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.5) 0%, rgba(6, 182, 212, 0.3) 45%, rgba(139, 92, 246, 0.2) 75%, transparent 100%);
-}
-
-/* Outer Soft Glow Pulse Rings */
-.orb-pulse-ring {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 1;
-}
-
-.state-listening ~ .orb-pulse-ring,
-.state-speaking ~ .orb-pulse-ring {
-  opacity: 1;
-}
-
-/* Core Orb Container */
-.ai-orb {
+/* Circular JARVIS Liquid-Glass Orb */
+.jarvis-orb {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(20, 25, 40, 0.6) 0%, rgba(5, 5, 10, 0.9) 100%);
   overflow: hidden;
-  cursor: pointer;
-  z-index: 2;
-  transform: scale(1);
-  transform-origin: center center;
-  transition: transform 0.65s cubic-bezier(0.25, 1, 0.3, 1),
-              box-shadow 0.65s ease,
-              filter 0.65s ease;
-  will-change: transform, box-shadow;
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.35),
-              0 0 60px rgba(6, 182, 212, 0.25),
-              inset 0 0 25px rgba(255, 255, 255, 0.25);
-  animation: orbFloat 4.5s ease-in-out infinite alternate;
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.8), 
+    inset 0 2px 10px rgba(255,255,255,0.1),
+    0 10px 40px rgba(0, 0, 0, 0.5); /* Outer shadow */
+  mask-image: radial-gradient(white, black);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* State scaling and transitions */
+  transform: scale(var(--orb-scale, 1));
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s ease;
 }
 
-/* Orb States */
+/* Base liquid structure styles */
+.liquid-bubble, .liquid-region, .liquid-ribbon {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(15px);
+  pointer-events: none;
+}
+
+/* Pink/Magenta bubble (left/lower-left) */
+.pink-bubble {
+  width: 60%;
+  height: 60%;
+  top: 30%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.7) 0%, rgba(225, 29, 72, 0.4) 50%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: liquidMove1 12s ease-in-out infinite alternate;
+}
+
+/* Cyan/Blue bubble (right) */
+.cyan-bubble {
+  width: 50%;
+  height: 50%;
+  top: 25%;
+  right: -5%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.8) 0%, rgba(59, 130, 246, 0.5) 50%, transparent 70%);
+  mix-blend-mode: color-dodge;
+  animation: liquidMove2 10s ease-in-out infinite alternate-reverse;
+}
+
+/* Green/Teal region (upper) */
+.green-region {
+  width: 70%;
+  height: 40%;
+  top: -5%;
+  left: 15%;
+  background: radial-gradient(ellipse, rgba(20, 184, 166, 0.6) 0%, rgba(16, 185, 129, 0.3) 50%, transparent 70%);
+  border-radius: 50% 50% 40% 40%;
+  mix-blend-mode: screen;
+  animation: liquidMove3 14s ease-in-out infinite alternate;
+}
+
+/* Blue/Purple region (lower) */
+.purple-region {
+  width: 80%;
+  height: 50%;
+  bottom: -10%;
+  left: 10%;
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.6) 0%, rgba(79, 70, 229, 0.4) 50%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: liquidMove4 15s ease-in-out infinite alternate-reverse;
+}
+
+/* Curved Liquid Ribbons */
+.liquid-ribbon {
+  filter: blur(4px);
+  mix-blend-mode: overlay;
+  border-radius: 50%;
+  border: 4px solid transparent;
+}
+
+.ribbon-1 {
+  width: 140%;
+  height: 60%;
+  top: 20%;
+  left: -20%;
+  border-top-color: rgba(255, 255, 255, 0.5);
+  border-right-color: rgba(6, 182, 212, 0.4);
+  transform: rotate(-15deg);
+  animation: ribbonWave1 18s linear infinite;
+}
+
+.ribbon-2 {
+  width: 120%;
+  height: 70%;
+  top: 15%;
+  left: -10%;
+  border-bottom-color: rgba(236, 72, 153, 0.5);
+  border-left-color: rgba(139, 92, 246, 0.4);
+  transform: rotate(45deg);
+  animation: ribbonWave2 22s linear infinite reverse;
+}
+
+.ribbon-3 {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-top-color: rgba(20, 184, 166, 0.3);
+  transform: rotate(20deg) scale(0.8);
+  animation: ribbonWave3 15s ease-in-out infinite alternate;
+}
+
+/* Center Light */
+.center-light-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15%;
+  height: 15%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 15px #fff, 0 0 30px rgba(255, 255, 255, 0.8);
+  filter: blur(2px);
+  z-index: 10;
+  animation: centerPulse var(--pulse-speed, 4s) ease-in-out infinite alternate;
+}
+
+.center-light-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40%;
+  height: 40%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 242, 254, 0.9) 0%, rgba(6, 182, 212, 0.6) 40%, transparent 70%);
+  mix-blend-mode: screen;
+  filter: blur(8px);
+  z-index: 9;
+  animation: centerGlowPulse var(--pulse-speed, 4s) ease-in-out infinite alternate;
+}
+
+.center-starburst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 10%;
+  transform: translate(-50%, -50%) rotate(30deg);
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+  mix-blend-mode: screen;
+  filter: blur(1px);
+  z-index: 8;
+}
+
+/* Glass Reflections */
+.glass-reflection {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, transparent 100%);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.top-reflection {
+  width: 70%;
+  height: 30%;
+  top: 5%;
+  left: 15%;
+  border-radius: 50% 50% 20% 20%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 100%);
+  filter: blur(1px);
+  transform: rotate(-5deg);
+}
+
+.bottom-reflection {
+  width: 60%;
+  height: 20%;
+  bottom: 2%;
+  left: 20%;
+  border-radius: 20% 20% 50% 50%;
+  background: linear-gradient(to top, rgba(255,255,255,0.15) 0%, transparent 100%);
+  filter: blur(1px);
+}
+
+/* ANIMATIONS */
+@keyframes liquidMove1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(15px, -10px) scale(1.1); }
+}
+
+@keyframes liquidMove2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-15px, 15px) scale(1.15); }
+}
+
+@keyframes liquidMove3 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-10px, 10px) scale(1.05); }
+}
+
+@keyframes liquidMove4 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10px, -15px) scale(1.08); }
+}
+
+@keyframes ribbonWave1 {
+  0% { transform: rotate(-15deg) translateY(0); }
+  50% { transform: rotate(-5deg) translateY(10px); }
+  100% { transform: rotate(-15deg) translateY(0); }
+}
+
+@keyframes ribbonWave2 {
+  0% { transform: rotate(45deg) scale(1); }
+  50% { transform: rotate(55deg) scale(1.05); }
+  100% { transform: rotate(45deg) scale(1); }
+}
+
+@keyframes ribbonWave3 {
+  0% { transform: rotate(20deg) scale(0.8); }
+  100% { transform: rotate(30deg) scale(0.9); }
+}
+
+@keyframes centerPulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+@keyframes centerGlowPulse {
+  0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+/* STATES */
 .ai-orb.state-idle {
-  transform: scale(1);
-  box-shadow: 0 0 28px rgba(99, 102, 241, 0.35),
-              0 0 55px rgba(6, 182, 212, 0.2),
-              inset 0 0 25px rgba(255, 255, 255, 0.25);
-}
-
-.ai-orb.state-listening {
-  transform: scale(2.05); /* ~266px */
-  box-shadow: 0 0 45px rgba(239, 68, 68, 0.5),
-              0 0 90px rgba(168, 85, 247, 0.45),
-              0 0 140px rgba(6, 182, 212, 0.35),
-              inset 0 0 35px rgba(255, 255, 255, 0.4);
-  animation: orbFloat 3s ease-in-out infinite alternate,
-             orbListeningPulse 1.8s ease-in-out infinite alternate;
+  --orb-scale: 1;
+  --glow-opacity: 0.5;
+  --pulse-speed: 4s;
 }
 
 .ai-orb.state-speaking {
-  transform: scale(1.65); /* ~215px - slightly enlarged with soft pulse */
-  box-shadow: 0 0 45px rgba(99, 102, 241, 0.6),
-              0 0 85px rgba(217, 70, 239, 0.5),
-              0 0 130px rgba(6, 182, 212, 0.35),
-              inset 0 0 30px rgba(255, 255, 255, 0.4);
-  animation: orbFloat 3.5s ease-in-out infinite alternate,
-             orbSpeakingPulse 1.8s ease-in-out infinite alternate;
+  --orb-scale: 1.03;
+  --glow-opacity: 0.8;
+  --pulse-speed: 2s;
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.1),
+    0 15px 50px rgba(236, 72, 153, 0.2),
+    0 15px 50px rgba(6, 182, 212, 0.2);
 }
 
-.ai-orb.state-thinking {
-  transform: scale(1.35); /* ~175px */
-  box-shadow: 0 0 35px rgba(245, 158, 11, 0.5),
-              0 0 75px rgba(139, 92, 246, 0.4),
-              inset 0 0 25px rgba(255, 255, 255, 0.3);
-  animation: orbFloat 2.8s ease-in-out infinite alternate,
-             orbThinkingBreathe 2s ease-in-out infinite alternate;
+.ai-orb.state-listening {
+  --orb-scale: 1.05;
+  --glow-opacity: 0.9;
+  --pulse-speed: 1.5s;
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.8),
+    inset 0 0 25px rgba(255, 255, 255, 0.15),
+    0 20px 60px rgba(6, 182, 212, 0.3),
+    0 20px 60px rgba(20, 184, 166, 0.2);
 }
 
-/* Internal Layers of the AI Orb */
-.orb-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  pointer-events: none;
+.ai-orb.state-thinking,
+.ai-orb.state-analyzing {
+  --orb-scale: 1.02;
+  --glow-opacity: 0.7;
+  --pulse-speed: 2.5s;
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.1),
+    0 15px 50px rgba(139, 92, 246, 0.3);
+}
+\n\n
+/* State Switcher Pill Buttons for Testing */
+.orb-state-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.35rem 0.5rem;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.orb-layer-base {
-  background: radial-gradient(circle at 35% 30%, #38bdf8 0%, #6366f1 35%, #7c3aed 65%, #0b0f19 100%);
-  z-index: 1;
+.orb-state-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.orb-layer-plasma-1 {
-  background: radial-gradient(circle at 75% 65%, rgba(236, 72, 153, 0.9) 0%, rgba(139, 92, 246, 0.75) 40%, transparent 75%);
-  mix-blend-mode: screen;
-  filter: blur(8px);
-  animation: orbShiftPlasma1 9s ease-in-out infinite alternate;
-  z-index: 2;
+.orb-state-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.orb-layer-plasma-2 {
-  background: conic-gradient(from 180deg at 50% 50%, #06b6d4, #8b5cf6, #ec4899, #3b82f6, #06b6d4);
-  mix-blend-mode: color-dodge;
-  opacity: 0.75;
-  filter: blur(14px);
-  animation: orbSpinPlasma 14s linear infinite;
-  z-index: 3;
-}
-
-.orb-layer-core {
-  background: radial-gradient(circle at 45% 45%, rgba(255, 255, 255, 0.95) 0%, rgba(167, 139, 250, 0.45) 30%, transparent 65%);
-  mix-blend-mode: overlay;
-  animation: orbCorePulse 4s ease-in-out infinite alternate;
-  z-index: 4;
-}
-
-.orb-glass-specular {
-  position: absolute;
-  top: 4%;
-  left: 12%;
-  width: 76%;
-  height: 48%;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.15) 50%, transparent 75%);
-  opacity: 0.7;
-  filter: blur(2px);
-  pointer-events: none;
-  z-index: 5;
-  transform: rotate(-15deg);
-}
-
-.orb-rim-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3),
-              inset 0 -10px 25px rgba(6, 182, 212, 0.4);
-  pointer-events: none;
-  z-index: 6;
-}
-
-/* Animations for Orb Internal Motion */
-@keyframes orbFloat {
-  0% { transform: translateY(0px) scale(var(--orb-scale, 1)); }
-  100% { transform: translateY(-10px) scale(var(--orb-scale, 1)); }
-}
-
-@keyframes orbShiftPlasma1 {
-  0% { transform: translate(-10%, -10%) scale(1); }
-  50% { transform: translate(15%, 10%) scale(1.15); }
-  100% { transform: translate(-5%, 12%) scale(0.95); }
-}
-
-@keyframes orbSpinPlasma {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes orbCorePulse {
-  0% { transform: scale(0.85); opacity: 0.6; }
-  100% { transform: scale(1.15); opacity: 0.95; }
-}
-
-@keyframes orbListeningPulse {
-  0% { filter: brightness(1); }
-  100% { filter: brightness(1.18); }
-}
-
-@keyframes orbSpeakingPulse {
-  0% { filter: brightness(1); }
-  100% { filter: brightness(1.22); }
-}
-
-@keyframes orbThinkingBreathe {
-  0% { filter: brightness(0.95); }
-  100% { filter: brightness(1.1); }
+.orb-state-btn.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-purple));
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
 }
 
 /* =========================================================
@@ -1623,5 +1723,278 @@ a:hover {
 
   .ai-question-text {
     font-size: 1.15rem;
+  }
+}
+
+/* =========================================================
+   JARVIS FUTURISTIC CINEMATIC UI
+   ========================================================= */
+
+/* Deep Cinematic Background */
+.cinematic-chamber {
+  background: radial-gradient(circle at center 80%, rgba(6, 182, 212, 0.08) 0%, rgba(15, 23, 42, 0.95) 40%, rgba(0, 0, 0, 1) 100%) !important;
+  border: none !important;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9) !important;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px !important;
+}
+
+/* Floating Glass Chat Panel */
+.glass-chat-panel {
+  position: relative;
+  z-index: 10;
+  width: 90%;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(103, 232, 249, 0.15);
+  border-radius: 24px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Chat Panel Subtle Animation during states */
+.cinematic-chamber[data-voice-state="listening"] .glass-chat-panel {
+  border-color: rgba(103, 232, 249, 0.3);
+  box-shadow: 0 20px 50px rgba(6, 182, 212, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.cinematic-chamber[data-voice-state="speaking"] .glass-chat-panel {
+  transform: translateY(-2px);
+  border-color: rgba(103, 232, 249, 0.25);
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.cinematic-chamber[data-voice-state="thinking"] .glass-chat-panel {
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 20px 50px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Chat History Container */
+.chat-history-container {
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  scrollbar-width: none; /* Firefox */
+  scroll-behavior: smooth;
+}
+.chat-history-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Chat Messages */
+.chat-message-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.chat-history-container .chat-message-group {
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+}
+
+.chat-history-container .chat-message-group:hover {
+  opacity: 0.8;
+}
+
+.chat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.user-turn .chat-label {
+  color: rgba(103, 232, 249, 0.7);
+}
+
+.jarvis-turn .chat-label {
+  color: rgba(139, 92, 246, 0.8);
+}
+
+.chat-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 400;
+}
+
+.user-turn .chat-text {
+  color: #f1f5f9;
+  text-shadow: 0 0 10px rgba(103, 232, 249, 0.2);
+}
+
+.jarvis-turn .chat-text {
+  color: #ffffff;
+  font-weight: 500;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Cursor & Text Highlights */
+.jarvis-cursor {
+  color: #67e8f9;
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.current-spoken-word {
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(103, 232, 249, 0.8);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* Analyzing Indicator */
+.chat-analyzing-indicator {
+  font-size: 1.1rem;
+  color: #a78bfa;
+  font-style: italic;
+  animation: slowPulse 2s infinite ease-in-out;
+}
+
+@keyframes slowPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+}
+
+/* Bottom Centered Orb */
+.orb-bottom-center {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 2rem;
+  margin-top: auto;
+}
+
+/* Adjust Orb scale slightly for better composition */
+.orb-bottom-center .jarvis-container {
+  transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+  .glass-chat-panel {
+    padding: 1.25rem;
+    width: 95%;
+  }
+  .chat-text {
+    font-size: 1.05rem;
+  }
+  .chat-history-container {
+    max-height: 180px;
+  }
+}
+
+/* ==========================================================================
+   3D JARVIS INTERVIEW CHAMBER LAYOUT
+   ========================================================================== */
+
+.chamber-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 300px;
+  gap: 1.5rem;
+  width: 100%;
+  position: relative;
+  min-height: 500px;
+}
+
+.panel-left {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  z-index: 10;
+}
+
+.panel-right {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+#jarvis-3d-container {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  border-radius: 12px;
+  overflow: hidden;
+  background: transparent;
+}
+
+#jarvis-3d-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  outline: none;
+}
+
+/* Enhancements to Liquid Glass Chat Panels */
+.glass-chat-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(56, 189, 248, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-chat-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .chamber-layout-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 250px;
+  }
+  
+  .panel-left {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+  
+  .panel-right {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+  
+  #jarvis-3d-container {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
   }
 }

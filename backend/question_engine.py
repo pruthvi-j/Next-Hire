@@ -221,7 +221,7 @@ def get_current_interview_state(interview_id, user_id):
     }
 
 
-def save_answer(interview_id, question_id, answer_text, user_id):
+def save_answer(interview_id, question_id, answer_text, user_id, status='answered'):
     """
     Stores or updates candidate's speech/text answer and triggers AI evaluation.
     If all questions have been answered, marks the interview as 'completed'
@@ -240,7 +240,8 @@ def save_answer(interview_id, question_id, answer_text, user_id):
         interview_id=interview_id,
         question_id=question_id,
         answer_text=answer_text,
-        user_id=user_id
+        user_id=user_id,
+        status=status
     )
 
     # 2. Check how many questions answered

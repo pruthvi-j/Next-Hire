@@ -40,8 +40,22 @@ ALLOWED_EXTENSIONS = {'pdf', 'docx'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Enable CORS with credentials
-CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "*"}})
+# ---------------------------------------------------------------
+# CORS — must use explicit origins (not wildcard) when
+# supports_credentials=True, otherwise browsers block cookies.
+# ---------------------------------------------------------------
+ALLOWED_ORIGINS = [
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:5000',
+    'http://127.0.0.1:5000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+CORS(app,
+     supports_credentials=True,
+     resources={r"/api/*": {"origins": ALLOWED_ORIGINS}},
+     expose_headers=["Content-Type", "Authorization"])
 
 
 # =========================================================
@@ -614,6 +628,7 @@ def api_save_interview_answer(interview_id):
 
     question_id = data.get('question_id')
     answer_text = (data.get('answer_text') or '').strip()
+    status = data.get('status', 'answered')
 
     if not question_id:
         return jsonify({
@@ -622,7 +637,7 @@ def api_save_interview_answer(interview_id):
         }), 400
 
     try:
-        result = save_answer(interview_id, int(question_id), answer_text, user_id)
+        result = save_answer(interview_id, int(question_id), answer_text, user_id, status=status)
         return jsonify({
             'status': 'success',
             'message': 'Answer recorded in database.',
@@ -772,7 +787,7 @@ def api_interviews_history():
         SELECT i.id, i.difficulty, i.total_questions, i.started_at, i.completed_at, i.status,
                r.role_name,
                ir.overall_score,
-               (SELECT COUNT(*) FROM answers a WHERE a.interview_id = i.id) as answered_count
+               (SELECT COUNT(*) FROM answers a WHERE a.interview_id = i.id AND a.status != 'skipped') as answered_count
         FROM interviews i
         LEFT JOIN roles r ON i.role_id = r.id
         LEFT JOIN interview_results ir ON ir.interview_id = i.id

@@ -272,6 +272,7 @@ def init_db():
                     feedback TEXT,
                     strength TEXT,
                     improvement TEXT,
+                    status VARCHAR(50) DEFAULT 'answered',
                     answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE,
                     FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
@@ -288,6 +289,10 @@ def init_db():
                 cursor.execute("ALTER TABLE answers ADD COLUMN feedback TEXT DEFAULT NULL")
                 cursor.execute("ALTER TABLE answers ADD COLUMN strength TEXT DEFAULT NULL")
                 cursor.execute("ALTER TABLE answers ADD COLUMN improvement TEXT DEFAULT NULL")
+            
+            cursor.execute("SHOW COLUMNS FROM answers LIKE 'status'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE answers ADD COLUMN status VARCHAR(50) DEFAULT 'answered'")
 
             # Migrate questions table: add expected_answer and key_concepts if missing
             cursor.execute("SHOW COLUMNS FROM questions LIKE 'expected_answer'")
@@ -310,10 +315,20 @@ def init_db():
                     strengths TEXT,
                     weaknesses TEXT,
                     recommendations TEXT,
+                    answered_count INT DEFAULT 0,
+                    skipped_count INT DEFAULT 0,
+                    answered_percentage FLOAT DEFAULT 100.0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """)
+
+            # Migrate interview_results for new columns
+            cursor.execute("SHOW COLUMNS FROM interview_results LIKE 'answered_count'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE interview_results ADD COLUMN answered_count INT DEFAULT 0")
+                cursor.execute("ALTER TABLE interview_results ADD COLUMN skipped_count INT DEFAULT 0")
+                cursor.execute("ALTER TABLE interview_results ADD COLUMN answered_percentage FLOAT DEFAULT 100.0")
 
             _seed_roles_and_skills(cursor, is_sqlite=False)
             db_conn.commit()
@@ -480,6 +495,7 @@ def init_db():
                 feedback TEXT,
                 strength TEXT,
                 improvement TEXT,
+                status TEXT DEFAULT 'answered',
                 answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE,
                 FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
@@ -496,7 +512,8 @@ def init_db():
             ('confidence_score', 'INTEGER'),
             ('feedback', 'TEXT'),
             ('strength', 'TEXT'),
-            ('improvement', 'TEXT')
+            ('improvement', 'TEXT'),
+            ('status', 'TEXT')
         ]
         for col_name, col_type in sqlite_new_cols:
             if col_name not in existing_cols:
@@ -523,10 +540,21 @@ def init_db():
                 strengths TEXT,
                 weaknesses TEXT,
                 recommendations TEXT,
+                answered_count INTEGER DEFAULT 0,
+                skipped_count INTEGER DEFAULT 0,
+                answered_percentage REAL DEFAULT 100.0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (interview_id) REFERENCES interviews(id) ON DELETE CASCADE
             );
         """)
+
+        # Migrate interview_results for new columns
+        cursor.execute("PRAGMA table_info(interview_results);")
+        res_cols = [c[1] for c in cursor.fetchall()]
+        if 'answered_count' not in res_cols:
+            cursor.execute("ALTER TABLE interview_results ADD COLUMN answered_count INTEGER DEFAULT 0;")
+            cursor.execute("ALTER TABLE interview_results ADD COLUMN skipped_count INTEGER DEFAULT 0;")
+            cursor.execute("ALTER TABLE interview_results ADD COLUMN answered_percentage REAL DEFAULT 100.0;")
 
         _seed_roles_and_skills(cursor, is_sqlite=True)
         conn.commit()

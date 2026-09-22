@@ -29,12 +29,17 @@ async function loadInterviewResult(interviewId) {
 
   try {
     const endpoint = interviewId 
-      ? `${API_BASE}/api/interview/${interviewId}/result`
-      : `${API_BASE}/api/interview/latest-result`;
+      ? `${API_BASE}/api/interview/${interviewId}/result?t=${Date.now()}`
+      : `${API_BASE}/api/interview/latest-result?t=${Date.now()}`;
 
     const response = await fetch(endpoint, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
 
     if (!response.ok) {
@@ -74,7 +79,7 @@ function renderScorecard(data) {
   safeSetText('session-code-badge', sessionCode);
   safeSetText('evaluated-role-badge', data.role_name || 'Software Engineer');
   safeSetText('evaluated-diff-badge', data.difficulty || 'Medium');
-  safeSetText('questions-count-badge', `${data.answered_count} of ${data.total_questions} Answered`);
+  safeSetText('questions-count-badge', `${data.answered_count} Answered • ${data.skipped_count || 0} Skipped • ${data.total_questions} Total`);
 
   const pdfUrl = `${API_BASE}/api/interview/${data.interview_id}/pdf`;
   const pdfFileName = `NextHire_Report_NH_${String(data.interview_id).padStart(3, '0')}.pdf`;
@@ -236,6 +241,7 @@ function renderQuestionsDetail(questions) {
       <div style="margin-bottom: 1rem;">
         <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">
           Candidate Response Transcript (Speech/Typed):
+          ${q.status === 'skipped' ? '<span class="badge badge-danger" style="margin-left: 0.5rem;">SKIPPED</span>' : ''}
         </span>
         <div style="padding: 0.85rem 1rem; background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-sm); font-size: 0.9rem; color: #cbd5e1; font-style: italic; line-height: 1.5;">
           "${escapeHtml(q.answer_text)}"
